@@ -3,59 +3,87 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const cors = require('cors');
 const session = require('express-session');
-const sequelizeStore = require('connect-session-sequelize')(session.Store);
-const ratelimit = require('express-rate-limit');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const { sequelize } = require('../models');
 
 dotenv.config();
 
 const PORT = process.env.APP_PORT || 3001;
-const URL = process.env.APP_URL || 'http://localhost:3001';
-const ORIGIN = process.env.APP_ORIGIN || 'http://localhost:5173';
-const SECRET = process.env.APP_SECRET || 'rumah-literasi';
+const URL = process.env.APP_URL;
+const ORIGIN = process.env.APP_ORIGIN;
+const SECRET = process.env.APP_SECRET;
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 const app = express();
-const store = new sequelizeStore({
-	db: sequelize,
-	tableName: 'sessions',
-});
 
-app.set('trust proxy', true);
+app.use(helmet());
+app.set('trust proxy', 1);
+
+
 app.use(
 	cors({
-		origin: ORIGIN,
+		origin: (origin, callback) => {
+			if (!origin || origin === ORIGIN) {
+				callback(null, true);
+			} else {
+				callback(new Error('Not allowed by CORS'));
+			}
+		},
 		credentials: true,
 	})
 );
 
+const store = new SequelizeStore({
+	db: sequelize,
+	tableName: 'sessions',
+	checkExpirationInterval: 15 * 60 * 1000, 
+	expiration: 24 * 60 * 60 * 1000,
+});
+
+
 app.use(
 	session({
 		store: store,
-		resave: false,
 		secret: SECRET,
+		resave: false,
 		saveUninitialized: false,
+		rolling: true,
 		proxy: true,
 		cookie: {
 			httpOnly: true,
-			sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-			secure: process.env.NODE_ENV === 'production',
+			secure: isProduction,
+			sameSite: isProduction ? 'none' : 'lax',
+			maxAge: 24 * 60 * 60 * 1000, // 1 hari
 		},
 	})
 );
 
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('uploads'));
+if (isProduction) {
+	app.use(morgan('combined'));
+} else {
+	app.use(morgan('dev'));
+}
 
-app.use(
-	ratelimit({
-		limit: 100,
-		windowMs: 1000 * 60,
-		standardHeaders: 'draft-8',
-	})
-);
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/uploads', express.static('uploads', {
+	maxAge: '7d',
+}));
+
+
+const limiter = rateLimit({
+	windowMs: 60 * 1000,
+	max: 100,
+	standardHeaders: true,
+	legacyHeaders: false,
+});
+
+app.use('/api', limiter);
 
 const errorHandler = require('../middleware/errors');
 const { authenticate } = require('../middleware/authenticate');
@@ -73,9 +101,10 @@ const userRoutes = require('../routes/user.routes');
 const merchantRoutes = require('../routes/merchant.routes');
 const logRoutes = require('../routes/log.routes');
 
-app.use('/api/_healthcheck', (req, res) => {
+app.get('/api/_healthcheck', (req, res) => {
 	res.status(200).json({
-		message: 'Server is running correctly',
+		status: 'ok',
+		time: new Date(),
 	});
 });
 
@@ -94,13 +123,23 @@ app.use('/api/members', userRoutes);
 app.use('/api/merchant', merchantRoutes);
 app.use('/api/logs', logRoutes);
 
+app.use((req, res) => {
+	res.status(404).json({ message: 'Not Found' });
+});
+
 app.use(errorHandler);
-app.get('*', (req, res) => {
-	res.sendStatus(404);
-});
 
-store.sync();
 
-app.listen(PORT, () => {
-	console.log('Server is running on ' + URL);
-});
+(async () => {
+	try {
+		await sequelize.authenticate();
+		await store.sync();
+
+		app.listen(PORT, () => {
+			console.log(`🚀 Server running at ${URL}`);
+		});
+	} catch (err) {
+		console.error('❌ Failed to start server:', err);
+		process.exit(1);
+	}
+})();
