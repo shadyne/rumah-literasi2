@@ -29,13 +29,9 @@ module.exports = {
 				type: DataTypes.STRING,
 			},
 			role: {
-				allowNull: false,
-				type: DataTypes.ENUM(
-					ROLES.GUEST,
-					ROLES.ADMIN,
-					ROLES.SUPERADMIN
-				),
-				defaultValue: ROLES.GUEST,
+			allowNull: false,
+			type: DataTypes.STRING,
+			defaultValue: ROLES.GUEST,
 			},
 			is_verified: {
 				allowNull: false,
