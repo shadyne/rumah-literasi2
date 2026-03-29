@@ -14,7 +14,7 @@ module.exports = {
     logging: false,
   },
   production: {
-    use_env_variable: 'DATABASE_URL',
+    use_env_variable: 'DB_HOST',
     dialect: process.env.DATABASE_DIALECT,
     dialectModule: require('pg'),
     dialectOptions: {
