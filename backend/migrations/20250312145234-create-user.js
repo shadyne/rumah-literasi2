@@ -30,8 +30,12 @@ module.exports = {
 			},
 			role: {
 				allowNull: false,
-				type: DataTypes.ENUM,
-				values: [ROLES.GUEST, ROLES.LIBRARIAN, ROLES.ADMIN, ROLES.SUPERADMIN],
+				type: DataTypes.ENUM(
+					ROLES.GUEST,
+					ROLES.LIBRARIAN,
+					ROLES.ADMIN,
+					ROLES.SUPERADMIN
+				),
 				defaultValue: ROLES.GUEST,
 			},
 			is_verified: {
@@ -51,7 +55,8 @@ module.exports = {
 			},
 		});
 	},
-	async down(queryInterface, Sequelize) {
+
+	async down(queryInterface) {
 		await queryInterface.dropTable('users');
 	},
 };
