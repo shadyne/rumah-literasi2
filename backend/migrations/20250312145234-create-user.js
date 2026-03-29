@@ -32,7 +32,6 @@ module.exports = {
 				allowNull: false,
 				type: DataTypes.ENUM(
 					ROLES.GUEST,
-					ROLES.LIBRARIAN,
 					ROLES.ADMIN,
 					ROLES.SUPERADMIN
 				),
