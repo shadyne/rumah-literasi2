@@ -1,0 +1,7 @@
+ignoredBuiltDependencies:
+  - esbuild
+  - sharp
+
+onlyBuiltDependencies:
+  - argon2
+  - sqlite3

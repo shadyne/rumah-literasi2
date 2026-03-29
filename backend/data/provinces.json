@@ -1,0 +1,230 @@
+[
+  {
+    "id": "11",
+    "name": "ACEH",
+    "latitude": 4.0405070151375,
+    "longitude": 96.649002928244
+  },
+  {
+    "id": "12",
+    "name": "SUMATERA UTARA",
+    "latitude": 1.8313656694909,
+    "longitude": 98.742431763566
+  },
+  {
+    "id": "13",
+    "name": "SUMATERA BARAT",
+    "latitude": -1.5544416939782,
+    "longitude": 100.24479865029
+  },
+  {
+    "id": "14",
+    "name": "RIAU",
+    "latitude": 0.89842758991219,
+    "longitude": 101.91972988343
+  },
+  {
+    "id": "15",
+    "name": "JAMBI",
+    "latitude": -1.7516813189869,
+    "longitude": 102.81327938858
+  },
+  {
+    "id": "16",
+    "name": "SUMATERA SELATAN",
+    "latitude": -3.2753964190087,
+    "longitude": 104.12844764389
+  },
+  {
+    "id": "17",
+    "name": "BENGKULU",
+    "latitude": -3.8956670126217,
+    "longitude": 102.3929013022
+  },
+  {
+    "id": "18",
+    "name": "LAMPUNG",
+    "latitude": -4.946190430793,
+    "longitude": 104.89134354822
+  },
+  {
+    "id": "19",
+    "name": "KEPULAUAN BANGKA BELITUNG",
+    "latitude": -2.4593299657045,
+    "longitude": 106.97804147244
+  },
+  {
+    "id": "21",
+    "name": "KEPULAUAN RIAU",
+    "latitude": 1.7497005452947,
+    "longitude": 106.22460268587
+  },
+  {
+    "id": "31",
+    "name": "DKI JAKARTA",
+    "latitude": -5.7775778675737,
+    "longitude": 106.67797574114
+  },
+  {
+    "id": "32",
+    "name": "JAWA BARAT",
+    "latitude": -6.8695633505675,
+    "longitude": 107.60859278383
+  },
+  {
+    "id": "33",
+    "name": "JAWA TENGAH",
+    "latitude": -6.9688115063451,
+    "longitude": 110.1236334162
+  },
+  {
+    "id": "34",
+    "name": "DI YOGYAKARTA",
+    "latitude": -7.8729522175198,
+    "longitude": 110.41881094232
+  },
+  {
+    "id": "35",
+    "name": "JAWA TIMUR",
+    "latitude": -6.9146085680302,
+    "longitude": 113.584454335
+  },
+  {
+    "id": "36",
+    "name": "BANTEN",
+    "latitude": -6.4120984789109,
+    "longitude": 105.93988078082
+  },
+  {
+    "id": "51",
+    "name": "BALI",
+    "latitude": -8.455528022999,
+    "longitude": 115.07188561078
+  },
+  {
+    "id": "52",
+    "name": "NUSA TENGGARA BARAT",
+    "latitude": -8.5948553138209,
+    "longitude": 117.57839644019
+  },
+  {
+    "id": "53",
+    "name": "NUSA TENGGARA TIMUR",
+    "latitude": -9.535486224309,
+    "longitude": 122.06016739861
+  },
+  {
+    "id": "61",
+    "name": "KALIMANTAN BARAT",
+    "latitude": -0.49330874430228,
+    "longitude": 111.4502420264
+  },
+  {
+    "id": "62",
+    "name": "KALIMANTAN TENGAH",
+    "latitude": -1.3828870209185,
+    "longitude": 113.29084959184
+  },
+  {
+    "id": "63",
+    "name": "KALIMANTAN SELATAN",
+    "latitude": -3.0299264148214,
+    "longitude": 115.45276612806
+  },
+  {
+    "id": "64",
+    "name": "KALIMANTAN TIMUR",
+    "latitude": 0.11057440433612,
+    "longitude": 116.41253260035
+  },
+  {
+    "id": "65",
+    "name": "KALIMANTAN UTARA",
+    "latitude": 2.7260163427808,
+    "longitude": 116.2877362242
+  },
+  {
+    "id": "71",
+    "name": "SULAWESI UTARA",
+    "latitude": 2.9290032454043,
+    "longitude": 125.13740613014
+  },
+  {
+    "id": "72",
+    "name": "SULAWESI TENGAH",
+    "latitude": -1.1327950239204,
+    "longitude": 121.81423338247
+  },
+  {
+    "id": "73",
+    "name": "SULAWESI SELATAN",
+    "latitude": -4.8270882079536,
+    "longitude": 119.43934665323
+  },
+  {
+    "id": "74",
+    "name": "SULAWESI TENGGARA",
+    "latitude": -4.495460756408,
+    "longitude": 122.73848458035
+  },
+  {
+    "id": "75",
+    "name": "GORONTALO",
+    "latitude": 0.67341929051864,
+    "longitude": 122.35676989916
+  },
+  {
+    "id": "76",
+    "name": "SULAWESI BARAT",
+    "latitude": -2.2084920575116,
+    "longitude": 118.47246590413
+  },
+  {
+    "id": "81",
+    "name": "MALUKU",
+    "latitude": -4.8627891757291,
+    "longitude": 130.31552224865
+  },
+  {
+    "id": "82",
+    "name": "MALUKU UTARA",
+    "latitude": 0.084059079563701,
+    "longitude": 126.97025845486
+  },
+  {
+    "id": "91",
+    "name": "PAPUA BARAT",
+    "latitude": -1.8372378964609,
+    "longitude": 132.28284465821
+  },
+  {
+    "id": "92",
+    "name": "PAPUA BARAT DAYA",
+    "latitude": 0,
+    "longitude": 0
+  },
+  {
+    "id": "94",
+    "name": "PAPUA",
+    "latitude": -4.0912830155479,
+    "longitude": 137.65753146755
+  },
+  {
+    "id": "95",
+    "name": "PAPUA SELATAN",
+    "latitude": 0,
+    "longitude": 0
+  },
+  {
+    "id": "96",
+    "name": "PAPUA TENGAH",
+    "latitude": 0,
+    "longitude": 0
+  },
+  {
+    "id": "97",
+    "name": "PAPUA PEGUNUNGAN",
+    "latitude": 0,
+    "longitude": 0
+  }
+]

@@ -1,0 +1,110 @@
+import * as React from 'react';
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Hint } from '@/components/ui/hint';
+import { PAYMENT_STATUS } from '@/libs/constant';
+import { Select } from '@/components/ui/select';
+
+const STATUS_LIST = Object.values(PAYMENT_STATUS);
+
+const FinancialDonationSchema = z.object({
+	amount: z.coerce.number().min(1),
+	notes: z.string().min(3),
+});
+
+const EditSchema = FinancialDonationSchema.merge(
+	z.object({
+		status: z.enum(STATUS_LIST),
+		acceptance_notes: z.string().optional(),
+	})
+);
+
+const FinancialDonationForm = ({ initial, action, label }) => {
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm({
+		resolver: zodResolver(initial ? EditSchema : FinancialDonationSchema),
+		defaultValues: initial || {
+			amount: 0,
+			notes: '',
+		},
+	});
+
+	return (
+		<form onSubmit={handleSubmit(action)} className='grid gap-6 lg:grid-cols-2'>
+			<div className='col-span-full'>
+				<Label htmlFor='amount'>Amount</Label>
+				<Input
+					type='number'
+					placeholder='Enter the amount of donation'
+					{...register('amount')}
+				/>
+				<Hint>Amount of the financial donation in rupiah.</Hint>
+				{errors.amount && (
+					<span className='text-red-500'>{errors.amount.message}</span>
+				)}
+			</div>
+
+			<div className='col-span-full'>
+				<Label htmlFor='notes'>Notes</Label>
+				<Textarea
+					type='text'
+					placeholder='Enter your notes'
+					{...register('notes')}
+				/>
+				<Hint>Additional notes about the financial donation.</Hint>
+				{errors.notes && (
+					<span className='text-red-500'>{errors.notes.message}</span>
+				)}
+			</div>
+
+			{initial && (
+				<React.Fragment>
+					<div>
+						<Label htmlFor='status'>Status</Label>
+						<Select {...register('status')}>
+							{STATUS_LIST.map((status) => (
+								<option key={status} value={status}>
+									{status}
+								</option>
+							))}
+						</Select>
+						<Hint>Status of the financial donation process.</Hint>
+						{errors.status && (
+							<span className='text-red-500'>{errors.status.message}</span>
+						)}
+					</div>
+
+					<div className='col-span-full'>
+						<Label htmlFor='acceptance-notes'>Acceptance Notes</Label>
+						<Textarea
+							type='text'
+							placeholder='Enter acceptance notes'
+							{...register('acceptance_notes')}
+						/>
+						<Hint>Notes about the acceptance of this donation.</Hint>
+						{errors.acceptance_notes && (
+							<span className='text-red-500'>
+								{errors.acceptance_notes.message}
+							</span>
+						)}
+					</div>
+				</React.Fragment>
+			)}
+
+			<div className='col-span-full'>
+				<Button>{label}</Button>
+			</div>
+		</form>
+	);
+};
+
+export default FinancialDonationForm;

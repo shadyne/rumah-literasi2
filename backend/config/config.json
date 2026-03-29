@@ -1,0 +1,22 @@
+{
+	"development": {
+		"dialect": "sqlite",
+		"storage": "./database/development.sqlite",
+		"migrationStorageTableName": "sequelize_meta",
+		"logging": false
+	},
+	"test": {
+		"dialect": "sqlite",
+		"storage": "./database/test.sqlite",
+		"migrationStorageTableName": "sequelize_meta",
+		"logging": false
+	},
+	"production": {
+		"dialect": "mysql",
+		"username": "root",
+		"password": null,
+		"database": "database_production",
+		"host": "127.0.0.1",
+		"logging": false
+	}
+}
