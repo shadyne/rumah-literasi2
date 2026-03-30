@@ -91,7 +91,9 @@ const AuthController = {
 
 			const url = new URL(process.env.APP_ORIGIN);
 			url.pathname = '/auth/signin';
+			url.searchParams.set('token', token);
 			const href = url.toString();
+			await EmailController.verify(href, user);
 
 			return res.redirect(href);
 		} catch (error) {

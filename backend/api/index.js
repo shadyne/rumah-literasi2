@@ -24,19 +24,26 @@ app.use(helmet());
 app.set('trust proxy', 1);
 
 
-app.use(
-	cors({
-		origin: (origin, callback) => {
-			if (!origin || origin === ORIGIN) {
-				callback(null, true);
-			} else {
-				callback(new Error('Not allowed by CORS'));
-			}
-		},
-		credentials: true,
-	})
-);
+const allowedOrigins = [
+  'https://www.mraenmimpi.com',
+  'https://mraenmimpi.com'
+];
 
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With']
+}));
+
+app.options('*', cors());
 const store = new SequelizeStore({
 	db: sequelize,
 	tableName: 'sessions',
@@ -57,7 +64,7 @@ app.use(
 			httpOnly: true,
 			secure: isProduction,
 			sameSite: isProduction ? 'none' : 'lax',
-			maxAge: 24 * 60 * 60 * 1000, // 1 hari
+			maxAge: 24 * 60 * 60 * 1000,
 		},
 	})
 );
@@ -71,7 +78,7 @@ if (isProduction) {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/uploads', express.static('uploads', {
+app.use('uploads', express.static('uploads', {
 	maxAge: '7d',
 }));
 
@@ -82,6 +89,7 @@ const limiter = rateLimit({
 	standardHeaders: true,
 	legacyHeaders: false,
 });
+
 
 app.use('/api', limiter);
 
@@ -136,10 +144,10 @@ app.use(errorHandler);
 		await store.sync();
 
 		app.listen(PORT, () => {
-			console.log(`🚀 Server running at ${URL}`);
+			console.log(`Server running at ${URL}`);
 		});
 	} catch (err) {
-		console.error('❌ Failed to start server:', err);
+		console.error('Failed to start server:', err);
 		process.exit(1);
 	}
 })();

@@ -1,0 +1,23 @@
+[0;1;32m●[0m nginx.service - The nginx HTTP and reverse proxy server
+     Loaded: loaded (]8;;file://srv1538830.hstgr.cloud/usr/lib/systemd/system/nginx.service\/usr/lib/systemd/system/nginx.service]8;;\; [0;1;32menabled[0m; preset: [0;1;38:5:185mdisabled[0m)
+     Active: [0;1;32mactive (running)[0m since Sun 2026-03-29 09:25:15 UTC; 6h ago
+ Invocation: c5b0fd83dec140b9951744cc4e40f66a
+    Process: 21785 ExecReload=/usr/sbin/nginx -s reload (code=exited, status=0/SUCCESS)
+   Main PID: 15458 (nginx)
+      Tasks: 2[0;38;5;245m (limit: 24624)[0m
+     Memory: 3.6M (peak: 6.8M)
+        CPU: 203ms
+     CGroup: /system.slice/nginx.service
+             ├─[0;38;5;245m15458 "nginx: master process /usr/sbin/nginx"[0m
+             └─[0;38;5;245m21787 "nginx: worker process"[0m
+
+Mar 29 14:49:46 srv1538830.hstgr.cloud systemd[1]: Reloading nginx.service - The nginx HTTP and reverse proxy server...
+Mar 29 14:49:47 srv1538830.hstgr.cloud systemd[1]: Reloaded nginx.service - The nginx HTTP and reverse proxy server.
+Mar 29 14:49:59 srv1538830.hstgr.cloud systemd[1]: Reloading nginx.service - The nginx HTTP and reverse proxy server...
+Mar 29 14:49:59 srv1538830.hstgr.cloud systemd[1]: Reloaded nginx.service - The nginx HTTP and reverse proxy server.
+Mar 29 14:54:12 srv1538830.hstgr.cloud systemd[1]: Reloading nginx.service - The nginx HTTP and reverse proxy server...
+Mar 29 14:54:12 srv1538830.hstgr.cloud systemd[1]: Reloaded nginx.service - The nginx HTTP and reverse proxy server.
+Mar 29 14:54:46 srv1538830.hstgr.cloud systemd[1]: Reloading nginx.service - The nginx HTTP and reverse proxy server...
+Mar 29 14:54:46 srv1538830.hstgr.cloud systemd[1]: Reloaded nginx.service - The nginx HTTP and reverse proxy server.
+Mar 29 15:40:58 srv1538830.hstgr.cloud systemd[1]: Reloading nginx.service - The nginx HTTP and reverse proxy server...
+Mar 29 15:40:58 srv1538830.hstgr.cloud systemd[1]: Reloaded nginx.service - The nginx HTTP and reverse proxy server.
