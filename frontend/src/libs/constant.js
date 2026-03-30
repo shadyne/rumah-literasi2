@@ -98,7 +98,7 @@ export const WIDGET_NAV = [
 		href: '/',
 		label: 'Home',
 	},
-	
+
 	{
 		href: '/about',
 		label: 'About Us',
@@ -107,13 +107,12 @@ export const WIDGET_NAV = [
 		href: '/contact',
 		label: 'Contact and Support',
 	},
-
 ];
 
 export const WIDGET_CONTACT = [
 	{
-		href: 'https://mraen-mimpi.org',
-		label: 'mraen-mimpi.org',
+		href: 'https://mraenmimpi.com',
+		label: 'mraenmimpi.com',
 		icon: Globe,
 	},
 	{
@@ -122,8 +121,8 @@ export const WIDGET_CONTACT = [
 		icon: Phone,
 	},
 	{
-		href: 'mailto:info@mraen-mimpi.org',
-		label: 'info@mraen-mimpi.org',
+		href: 'mailto:mraenmimpi.com@gmail.com',
+		label: 'mraenmimpi@gmail.com',
 		icon: Mail,
 	},
 ];
@@ -141,7 +140,7 @@ export const WIDGET_SOCIAL = [
 	},
 	{
 		href: 'https://www.tiktok.com/@mraenmimpi',
-		label: 'Rumah Literasi',
+		label: 'Mraen Mimpi',
 		icon: Facebook,
 	},
 ];

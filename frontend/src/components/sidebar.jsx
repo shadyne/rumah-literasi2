@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { toast } from 'sonner';
-import { User2, LogOut } from 'lucide-react';
+import { User2, LogOut, Menu, X } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router';
 
 import { cn } from '@/libs/utils';
@@ -17,7 +17,7 @@ import {
 import SidebarCard from '@/components/sidebar-card';
 import { useConfirm } from '@/hooks/use-confirm';
 
-const Sidebar = ({ className }) => {
+const SidebarContent = ({ onClose }) => {
 	const { confirm } = useConfirm();
 	const { user, loading, signout } = useAuth();
 
@@ -56,72 +56,110 @@ const Sidebar = ({ className }) => {
 					});
 				}
 			})
-			.catch(() => {
-				// pass
-			});
+			.catch(() => {});
 	};
 
 	return (
-		<aside className={cn('bg-zinc-100', className)}>
-			<div className='flex flex-col justify-between h-full p-6 pt-10'>
-				<div className='flex flex-col gap-6'>
-					{MENUS.map((menu) => (
-						<Accordion type='multiple' defaultValue={[menu.id]} key={menu.id}>
-							<AccordionItem value={menu.id}>
-								<AccordionTrigger>{menu.label}</AccordionTrigger>
-								<AccordionContent className='ml-2'>
-									<ul className='flex flex-col gap-6 text-sm'>
-										{menu.submenus.map((menu) => {
-											const Icon = menu.icon;
-											const active = location.pathname === menu.href;
-
-											return (
-												<li key={menu.href}>
-													<Link
-														to={menu.href}
-														className={cn(
-															'flex items-center gap-4 font-medium rounded-xl hover:text-primary-500',
-															{ 'text-primary-500': active }
-														)}>
-														<Icon className='size-5' />
-														<span>{menu.label}</span>
-													</Link>
-												</li>
-											);
-										})}
-									</ul>
-								</AccordionContent>
-							</AccordionItem>
-						</Accordion>
-					))}
-
-					<Accordion type='multiple' defaultValue={['account']} key='account'>
-						<AccordionItem value='account'>
-							<AccordionTrigger>Account</AccordionTrigger>
+		<div className='flex flex-col justify-between h-full p-6 pt-10'>
+			<div className='flex flex-col gap-6'>
+				{MENUS.map((menu) => (
+					<Accordion type='multiple' defaultValue={[menu.id]} key={menu.id}>
+						<AccordionItem value={menu.id}>
+							<AccordionTrigger>{menu.label}</AccordionTrigger>
 							<AccordionContent className='ml-2'>
 								<ul className='flex flex-col gap-6 text-sm'>
-									<Link
-										to='/dashboard/profile'
-										className='flex items-center gap-4 font-medium rounded-xl hover:text-primary-500'>
-										<User2 className='size-5' />
-										<span>Profile</span>
-									</Link>
+									{menu.submenus.map((menu) => {
+										const Icon = menu.icon;
+										const active = location.pathname === menu.href;
 
-									<button
-										onClick={handleLogout}
-										className='flex items-center gap-4 font-medium rounded-xl hover:text-red-500'>
-										<LogOut className='size-5' />
-										<span>Logout</span>
-									</button>
+										return (
+											<li key={menu.href}>
+												<Link
+													to={menu.href}
+													onClick={onClose}
+													className={cn(
+														'flex items-center gap-4 font-medium rounded-xl hover:text-primary-500',
+														{ 'text-primary-500': active }
+													)}>
+													<Icon className='size-5' />
+													<span>{menu.label}</span>
+												</Link>
+											</li>
+										);
+									})}
 								</ul>
 							</AccordionContent>
 						</AccordionItem>
 					</Accordion>
-				</div>
+				))}
 
-				<SidebarCard />
+				<Accordion type='multiple' defaultValue={['account']} key='account'>
+					<AccordionItem value='account'>
+						<AccordionTrigger>Account</AccordionTrigger>
+						<AccordionContent className='ml-2'>
+							<ul className='flex flex-col gap-6 text-sm'>
+								<Link
+									to='/dashboard/profile'
+									onClick={onClose}
+									className='flex items-center gap-4 font-medium rounded-xl hover:text-primary-500'>
+									<User2 className='size-5' />
+									<span>Profile</span>
+								</Link>
+
+								<button
+									onClick={handleLogout}
+									className='flex items-center gap-4 font-medium rounded-xl hover:text-red-500'>
+									<LogOut className='size-5' />
+									<span>Logout</span>
+								</button>
+							</ul>
+						</AccordionContent>
+					</AccordionItem>
+				</Accordion>
 			</div>
-		</aside>
+
+			<SidebarCard />
+		</div>
+	);
+};
+
+const Sidebar = ({ className }) => {
+	const [mobileOpen, setMobileOpen] = React.useState(false);
+
+	const handleClose = () => setMobileOpen(false);
+
+	return (
+		<>
+			<aside className={cn('bg-zinc-100', className)}>
+				<SidebarContent onClose={undefined} />
+			</aside>
+
+			<button
+				className='fixed z-50 bottom-4 right-4 flex items-center justify-center bg-primary-500 text-white rounded-full size-12 shadow-lg lg:hidden'
+				onClick={() => setMobileOpen(true)}
+				aria-label='Open sidebar'>
+				<Menu className='size-5' />
+			</button>
+
+			{mobileOpen && (
+				<div className='fixed inset-0 z-50 lg:hidden'>
+					<div className='absolute inset-0 bg-black/40' onClick={handleClose} />
+
+					<aside className='absolute left-0 top-0 h-full w-72 bg-zinc-100 overflow-y-auto shadow-xl'>
+						<div className='flex items-center justify-between px-6 pt-4'>
+							<span className='font-semibold text-sm text-zinc-500'>Menu</span>
+							<button
+								onClick={handleClose}
+								className='flex items-center justify-center rounded-full size-8 hover:bg-zinc-200'
+								aria-label='Close sidebar'>
+								<X className='size-4' />
+							</button>
+						</div>
+						<SidebarContent onClose={handleClose} />
+					</aside>
+				</div>
+			)}
+		</>
 	);
 };
 

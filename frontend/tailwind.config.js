@@ -17,7 +17,18 @@ export default {
 				sans: ['var(--font-sans)', ...fontFamily.sans],
 			},
 			colors: {
-				primary: colors.pink,
+				primary: {
+					50: '#e6f7f7',
+					100: '#cceeee',
+					200: '#99dddd',
+					300: '#66cccc',
+					400: '#33bbbb',
+					500: '#1c9fa0',
+					600: '#178a8b',
+					700: '#136f70',
+					800: '#0f5555',
+					900: '#0a3a3a',
+				},
 			},
 			aspectRatio: {
 				thumbnail: '4 / 3',
