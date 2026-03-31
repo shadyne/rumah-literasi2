@@ -43,7 +43,8 @@ class SearchService {
 			limit: this.paginate(pagination).limit,
 			offset: this.paginate(pagination).offset,
 			order: [['createdAt', 'DESC']],
-			subQuery: dialect === 'sqlite' && related ? false : undefined,
+			distinct: true,
+			subQuery: false,
 		});
 	}
 

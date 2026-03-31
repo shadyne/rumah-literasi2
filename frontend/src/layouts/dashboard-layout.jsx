@@ -10,14 +10,14 @@ import { useAuth } from '@/hooks/use-auth';
 
 const DashboardLayout = () => {
 	const { user, loading } = useAuth();
-	const navigate = useNavigate();
 	const location = useLocation();
+	const navigate = useNavigate();
+	const isHome = location.pathname === '/';
+	const [isMenuOpen] = React.useState(false);
 
 	React.useEffect(() => {
 		if (!loading && !user) navigate('/auth/signin');
 	}, [user, loading, navigate]);
-
-	const showBackButton = location.pathname !== '/';
 
 	return (
 		<div className='relative flex'>
@@ -31,7 +31,7 @@ const DashboardLayout = () => {
 
 					<div className='flex items-center justify-between w-full gap-2 px-10'>
 						<div className='flex items-center gap-2'>
-							{showBackButton && (
+							{!isHome && !isMenuOpen && (
 								<button
 									onClick={() => navigate(-1)}
 									className='lg:hidden p-1 rounded hover:bg-gray-100'>
