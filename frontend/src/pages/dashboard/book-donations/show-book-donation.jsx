@@ -1,6 +1,7 @@
 import * as React from 'react';
 import useSWR from 'swr';
 import { Link, useParams } from 'react-router';
+import { ArrowLeft } from 'lucide-react';
 
 import { currency } from '@/libs/utils';
 import { useAuth } from '@/hooks/use-auth';
@@ -233,9 +234,12 @@ const ShowBookDonation = () => {
 					</div>
 
 					<div className='col-span-full'>
-						<div className='flex items-center gap-2'>
+						<div className='flex flex-wrap items-center gap-2'>
 							<Link to='/dashboard/book-donations'>
-								<Button variant='outline'>Back</Button>
+								<Button variant='outline'>
+									<ArrowLeft className='size-4 sm:mr-2' />
+									<span className='hidden sm:inline'>Back</span>
+								</Button>
 							</Link>
 
 							{result.data.status === 'pending ' && (

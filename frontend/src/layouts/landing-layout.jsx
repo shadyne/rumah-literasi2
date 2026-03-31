@@ -11,7 +11,7 @@ const LandingLayout = () => {
 				<Navbar className='py-4' />
 			</div>
 
-			<main>
+			<main className='overflow-x-hidden'>
 				<Outlet />
 			</main>
 

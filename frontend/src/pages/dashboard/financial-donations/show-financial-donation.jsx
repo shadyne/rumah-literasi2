@@ -1,6 +1,10 @@
+// ============================================================
+// show-financial-donation.jsx
+// ============================================================
 import * as React from 'react';
 import useSWR from 'swr';
 import { Link, useParams } from 'react-router';
+import { ArrowLeft } from 'lucide-react';
 
 import {
 	Heading,
@@ -37,7 +41,8 @@ const ShowDonation = () => {
 			<Heading>
 				<HeadingTitle>Detail Financial Donations</HeadingTitle>
 				<HeadingDescription>
-					Detail informasi donasi finansial untuk mendukung kegiatan literasi baca-tulis di Mraen Mimpi
+					Detail informasi donasi finansial untuk mendukung kegiatan literasi
+					baca-tulis di Mraen Mimpi
 				</HeadingDescription>
 			</Heading>
 
@@ -71,9 +76,12 @@ const ShowDonation = () => {
 					</div>
 
 					<div className='col-span-full'>
-						<div className='flex items-center gap-2'>
+						<div className='flex flex-wrap items-center gap-2'>
 							<Link to='/dashboard/financial-donations'>
-								<Button variant='outline'>Back</Button>
+								<Button variant='outline'>
+									<ArrowLeft className='size-4 sm:mr-2' />
+									<span className='hidden sm:inline'>Back</span>
+								</Button>
 							</Link>
 
 							{result.data.status === 'pending ' && (

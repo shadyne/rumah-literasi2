@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import useSWR, { useSWRConfig } from 'swr';
 import { Link, useParams } from 'react-router';
 import { useConfirm } from '@/hooks/use-confirm';
+import { ArrowLeft } from 'lucide-react';
 
 import axios from '@/libs/axios';
 
@@ -163,7 +164,10 @@ const ShowAddress = () => {
 					<div className='col-span-full'>
 						<div className='flex items-center gap-2'>
 							<Link to='/dashboard/addresses'>
-								<Button variant='outline'>Back</Button>
+								<Button variant='outline'>
+									<ArrowLeft className='size-4 sm:mr-2' />
+									<span className='hidden sm:inline'>Back</span>
+								</Button>
 							</Link>
 							{!result.data.is_default && (
 								<Button

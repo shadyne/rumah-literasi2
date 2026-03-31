@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router';
 import useSWR from 'swr';
+import { ArrowLeft } from 'lucide-react';
 
 import {
 	Heading,
@@ -81,7 +82,10 @@ const ShowLog = () => {
 					<div className='col-span-full'>
 						<div className='flex items-center gap-2'>
 							<Link to='/dashboard/logs'>
-								<Button variant='outline'>Back</Button>
+								<Button variant='outline'>
+									<ArrowLeft className='size-4 sm:mr-2' />
+									<span className='hidden sm:inline'>Back</span>
+								</Button>
 							</Link>
 						</div>
 					</div>

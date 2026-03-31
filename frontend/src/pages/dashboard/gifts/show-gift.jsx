@@ -1,6 +1,7 @@
 import * as React from 'react';
 import useSWR from 'swr';
 import { Link, useParams } from 'react-router';
+import { ArrowLeft } from 'lucide-react';
 
 import {
 	Heading,
@@ -33,7 +34,8 @@ const ShowGift = () => {
 			<Heading>
 				<HeadingTitle>Detail Gift</HeadingTitle>
 				<HeadingDescription>
-					Detail informasi donasi untuk mendukung kegiatan literasi baca-tulis di Mraen Mimpi
+					Detail informasi donasi untuk mendukung kegiatan literasi baca-tulis
+					di Mraen Mimpi
 				</HeadingDescription>
 			</Heading>
 
@@ -79,9 +81,12 @@ const ShowGift = () => {
 					</div>
 
 					<div className='col-span-full'>
-						<div className='flex items-center gap-2'>
+						<div className='flex flex-wrap items-center gap-2'>
 							<Link to='/dashboard/gifts'>
-								<Button variant='outline'>Back</Button>
+								<Button variant='outline'>
+									<ArrowLeft className='size-4 sm:mr-2' />
+									<span className='hidden sm:inline'>Back</span>
+								</Button>
 							</Link>
 
 							{allowed && (

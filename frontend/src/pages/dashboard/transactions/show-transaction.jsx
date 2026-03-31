@@ -3,6 +3,7 @@ import * as React from 'react';
 import useSWR from 'swr';
 import { toast } from 'sonner';
 import { Link, useParams } from 'react-router';
+import { ArrowLeft } from 'lucide-react';
 
 import axios from '@/libs/axios';
 import { currency } from '@/libs/utils';
@@ -131,7 +132,10 @@ const ShowTransaction = () => {
 
 						<div className='flex flex-wrap items-center gap-2'>
 							<Link to='/dashboard/transactions'>
-								<Button variant='outline'>Back</Button>
+								<Button variant='outline'>
+									<ArrowLeft className='size-4 sm:mr-2' />
+									<span className='hidden sm:inline'>Back</span>
+								</Button>
 							</Link>
 
 							{allowed && status === 'pending' && (

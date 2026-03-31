@@ -2,6 +2,7 @@ import * as React from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
+import { ArrowLeft } from 'lucide-react';
 
 import axios from '@/libs/axios';
 import { animate, currency } from '@/libs/utils';
@@ -221,12 +222,13 @@ const ReviewBookDonation = () => {
 			</div>
 
 			<div className='col-span-full'>
-				<div className='flex items-center gap-2'>
+				<div className='flex flex-wrap items-center gap-2'>
 					<Button onClick={onSubmit} disabled={loading}>
 						{loading ? 'Submitting...' : 'Confirm and Submit Donation'}
 					</Button>
 					<Button variant='outline' onClick={onPrevious}>
-						Back
+						<ArrowLeft className='size-4 sm:mr-2' />
+						<span className='hidden sm:inline'>Back</span>
 					</Button>
 				</div>
 			</div>
