@@ -58,7 +58,11 @@ const DashboardLayout = () => {
 				</div>
 			</div>
 
-			<Sidebar className='flex-none hidden h-screen pt-16 overflow-y-auto border-r lg:block w-72' />
+			<Sidebar
+				className='flex-none hidden h-screen pt-16 overflow-y-auto border-r lg:block w-72'
+				mobileOpen={mobileOpen}
+				setMobileOpen={setMobileOpen}
+			/>
 
 			<div className='w-full h-screen pt-16 overflow-y-auto'>
 				<div className='container max-w-6xl p-10'>
