@@ -12,7 +12,7 @@ const DashboardLayout = () => {
 	const { user, loading } = useAuth();
 	const location = useLocation();
 	const navigate = useNavigate();
-	const isHome = location.pathname === '/';
+	const isHome = location.pathname === '/dashboard';
 	const [isMenuOpen] = React.useState(false);
 
 	React.useEffect(() => {
