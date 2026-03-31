@@ -1,15 +1,21 @@
 import * as React from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
+import { MobileHeader } from '@/components/mobile-header';
 
 const LandingLayout = () => {
+	const location = useLocation();
+	const isHome = location.pathname === '/';
+
 	return (
 		<React.Fragment>
 			<div className='container max-w-7xl'>
 				<Navbar className='py-4' />
 			</div>
+
+			{!isHome && <MobileHeader />}
 
 			<main className='overflow-x-hidden'>
 				<Outlet />
