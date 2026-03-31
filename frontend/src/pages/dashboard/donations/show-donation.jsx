@@ -35,10 +35,15 @@ const ShowDonation = () => {
 
 	return (
 		<div className='grid gap-8'>
+			<Link to='/dashboard/donations'>
+				<Button variant='outline'>Back</Button>
+			</Link>
+
 			<Heading>
 				<HeadingTitle>Detail Donation</HeadingTitle>
 				<HeadingDescription>
-					Detail informasi donasi finansial untuk mendukung kegiatan literasi baca-tulis di Taman Mraen Mimpi
+					Detail informasi donasi finansial untuk mendukung kegiatan literasi
+					baca-tulis di Taman Mraen Mimpi
 				</HeadingDescription>
 			</Heading>
 
@@ -64,10 +69,6 @@ const ShowDonation = () => {
 
 					<div className='col-span-full'>
 						<div className='flex items-center gap-2'>
-							<Link to='/dashboard/donations'>
-								<Button variant='outline'>Back</Button>
-							</Link>
-
 							{result.data.status !== 'pending ' && (
 								<Link
 									to={result.data.payment_url}
