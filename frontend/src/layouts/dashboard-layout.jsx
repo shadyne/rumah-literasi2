@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Menu } from 'lucide-react';
 
 import { Logo } from '@/components/ui/logo';
-import Sidebar from '@/components/sidebar';
 import Profile from '@/components/profile';
 import { MobileHeader } from '@/components/mobile-back';
 import { useAuth } from '@/hooks/use-auth';
+import Sidebar, { SidebarTrigger } from '@/components/sidebar';
 
 const DashboardLayout = () => {
 	const { user, loading } = useAuth();
@@ -14,6 +14,7 @@ const DashboardLayout = () => {
 	const navigate = useNavigate();
 	const isHome = location.pathname === '/dashboard';
 	const [isMenuOpen] = React.useState(false);
+	const [mobileOpen, setMobileOpen] = React.useState(false);
 
 	React.useEffect(() => {
 		if (!loading && !user) navigate('/auth/signin');
@@ -44,7 +45,15 @@ const DashboardLayout = () => {
 							</span>
 						</div>
 
-						<Profile />
+						<div className='flex items-center gap-3'>
+							<Profile />
+							<button
+								className='flex items-center justify-center lg:hidden size-9 rounded-xl border border-zinc-200 hover:bg-zinc-50'
+								onClick={() => setMobileOpen(true)}
+								aria-label='Open sidebar'>
+								<Menu className='size-5' />
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
