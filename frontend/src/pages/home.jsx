@@ -120,10 +120,15 @@ const Home = () => {
 				<div className='flex flex-col gap-6'>
 					<h2 className='text-4xl font-bold'>About Us</h2>
 					<p className='text-zinc-600'>
-					Mraen adalah sebuah dusun di kabupaten Sleman, Yogyakarta, di mana bermula dari gang kecil inilah lahir sebuah gerakan literasi bernama MRAEN MIMPI. 
-					Kata “mraen” kami umpamakan sebagai kata yang memiliki arti “meraih”, kemudian kami menambahkan kata “mimpi” setelahnya. Iya, kami sedang meniti langkah untuk meraih sebuah mimpi.
-					Mraen Mimpi sebagai gerakan literasi yang menggunakan media gerobak bernama “PELAN2” (dibaca pelan-pelan), memiliki filosofi yang bermakna; kami pelan-pelan berproses dengan 
-					memulai dari sesuatu yang mampu kami lakukan, yakni berupa Perpustakaan Jalan-jalan.
+						Mraen adalah sebuah dusun di kabupaten Sleman, Yogyakarta, di mana
+						bermula dari gang kecil inilah lahir sebuah gerakan literasi bernama
+						MRAEN MIMPI. Kata “mraen” kami umpamakan sebagai kata yang memiliki
+						arti “meraih”, kemudian kami menambahkan kata “mimpi” setelahnya.
+						Iya, kami sedang meniti langkah untuk meraih sebuah mimpi. Mraen
+						Mimpi sebagai gerakan literasi yang menggunakan media gerobak
+						bernama “PELAN2” (dibaca pelan-pelan), memiliki filosofi yang
+						bermakna; kami pelan-pelan berproses dengan memulai dari sesuatu
+						yang mampu kami lakukan, yakni berupa Perpustakaan Jalan-jalan.
 					</p>
 				</div>
 			</div>
@@ -133,15 +138,16 @@ const Home = () => {
 					<div className='flex flex-col gap-6 text-center'>
 						<h2 className='text-4xl font-bold'>Alur Donasi Buku</h2>
 						<p>
-							Donasi buku adalah kegiatan sosial untuk mengumpulkan dan mendistribusikan 
-							buku kepada yang membutuhkan, seperti sekolah terpencil. Proses donasi meliputi pengumpulan, penyortiran, 
-							dan pendistribusian buku ke perpustakaan dan komunitas baca yang membutuhkan. Selain buku, donasi dalam bentuk uang juga diterima 
-							untuk membantu fasilitas literasi di tempat yang kurang akses buku dan sumber belajar. Anda dapat berdonasi melalui website 
-							dan mengirimkan buku langsung ke alamat komunitas.
-
-
+							Donasi buku adalah kegiatan sosial untuk mengumpulkan dan
+							mendistribusikan buku kepada yang membutuhkan, seperti sekolah
+							terpencil. Proses donasi meliputi pengumpulan, penyortiran, dan
+							pendistribusian buku ke perpustakaan dan komunitas baca yang
+							membutuhkan. Selain buku, donasi dalam bentuk uang juga diterima
+							untuk membantu fasilitas literasi di tempat yang kurang akses buku
+							dan sumber belajar. Anda dapat berdonasi melalui website dan
+							mengirimkan buku langsung ke alamat komunitas.
 						</p>
-						<div className='grid gap-6 mt-10 md:grid-cols-2 lg:grid-cols-4'>
+						<div className='grid gap-6 mt-10 grid-cols-2 lg:grid-cols-4'>
 							<img
 								alt='steps'
 								src='/steps/step-1.jpg'
@@ -171,7 +177,9 @@ const Home = () => {
 				<div className='flex flex-col gap-6 text-center'>
 					<h2 className='text-4xl font-bold'>Apa Itu Taman Baca?</h2>
 					<p>
-						Taman bacaan masyarakat adalah tempat yang menyediakan layanan baca dan sumber belajar bagi masyarakat sekitar, tanpa memandang latar belakang sosial, ekonomi, atau pendidikan.
+						Taman bacaan masyarakat adalah tempat yang menyediakan layanan baca
+						dan sumber belajar bagi masyarakat sekitar, tanpa memandang latar
+						belakang sosial, ekonomi, atau pendidikan.
 					</p>
 
 					<img
@@ -181,15 +189,18 @@ const Home = () => {
 					/>
 
 					<p>
-						Jika buku adalah jendelanya, maka taman baca bagi komunitas adalah pintu yang 
-						terbuka lebar bagi warga untuk keluar dari keterbatasan informasi dan masuk ke ruang kolaborasi.
+						Jika buku adalah jendelanya, maka taman baca bagi komunitas adalah
+						pintu yang terbuka lebar bagi warga untuk keluar dari keterbatasan
+						informasi dan masuk ke ruang kolaborasi.
 					</p>
 
 					<p>
-						TBM berperan penting dalam memfasilitasi kegiatan literasi baca-tulis, 
-						terutama bagi anak-anak dan masyarakat umum yang tinggal di sekitar lingkungan taman baca. 
-						Mraen Mimpi membuka Lapak Buku Bacaan dan Mainan Edukasi di beberapa kegiatan anak-anak maupun dewasa, 
-						bekerjasama serta kolaborasi dengan komunitas, organisasi atau lembaga lainnya.
+						TBM berperan penting dalam memfasilitasi kegiatan literasi
+						baca-tulis, terutama bagi anak-anak dan masyarakat umum yang tinggal
+						di sekitar lingkungan taman baca. Mraen Mimpi membuka Lapak Buku
+						Bacaan dan Mainan Edukasi di beberapa kegiatan anak-anak maupun
+						dewasa, bekerjasama serta kolaborasi dengan komunitas, organisasi
+						atau lembaga lainnya.
 					</p>
 
 					<h2 className='mt-10 text-4xl font-bold'>Gallery Kami</h2>

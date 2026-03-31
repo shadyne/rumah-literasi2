@@ -151,7 +151,7 @@ const ReviewBookDonation = () => {
 						/>
 					</div>
 
-					<div className='grid grid-cols-3 gap-6 col-span-full'>
+					<div className='grid grid-cols-1 sm:grid-cols-3 gap-6 col-span-full'>
 						<div>
 							<Label htmlFor='dimensions'>Length</Label>
 							<Input disabled type='text' defaultValue={detail.length + 'cm'} />

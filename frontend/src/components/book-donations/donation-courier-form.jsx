@@ -32,7 +32,7 @@ const DonationCourierForm = ({ detail, action, previous, label }) => {
 
 	return (
 		<React.Fragment>
-			<div className='grid grid-cols-2 gap-6 lg:grid-cols-3'>
+			<div className='grid grid-cols-1 md:grid-cols-2 gap-6 lg:grid-cols-3'>
 				<Empty empty={!loading && !error && data.length === 0} />
 				<Error error={!loading && error} />
 				<Loading loading={loading} />

@@ -107,7 +107,7 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 				)}
 			</div>
 
-			<div className='grid grid-cols-3 gap-6 col-span-full'>
+			<div className='grid grid-cols-1 sm:grid-cols-3 gap-6 col-span-full'>
 				<div>
 					<Label htmlFor='depth'>Length</Label>
 					<Input

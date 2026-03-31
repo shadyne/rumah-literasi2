@@ -93,7 +93,7 @@ const ListBookDonations = () => {
 				</HeadingDescription>
 			</Heading>
 
-			<div className='flex items-center justify-between'>
+			<div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3'>
 				<div className='flex items-center w-full gap-2'>
 					<Input
 						value={search}
@@ -114,8 +114,10 @@ const ListBookDonations = () => {
 					</Select>
 				</div>
 
-				<Link to='/dashboard/book-donations/create' className='flex-none'>
-					<Button>Create Book Donation</Button>
+				<Link
+					to='/dashboard/book-donations/create'
+					className='flex-none w-full sm:w-auto'>
+					<Button className='w-full sm:w-auto'>Create Book Donation</Button>
 				</Link>
 			</div>
 

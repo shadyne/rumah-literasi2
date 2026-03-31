@@ -115,7 +115,8 @@ const ShowTransaction = () => {
 			<Heading>
 				<HeadingTitle>Detail Transaction</HeadingTitle>
 				<HeadingDescription>
-					Detail informasi donasi untuk mendukung kegiatan literasi baca-tulis di Mraen Mimpi
+					Detail informasi donasi untuk mendukung kegiatan literasi baca-tulis
+					di Mraen Mimpi
 				</HeadingDescription>
 			</Heading>
 
@@ -128,7 +129,7 @@ const ShowTransaction = () => {
 						<RecipientDetail recipient={recipient} />
 						<CourierDetail courier={courier} />
 
-						<div className='flex items-center gap-2'>
+						<div className='flex flex-wrap items-center gap-2'>
 							<Link to='/dashboard/transactions'>
 								<Button variant='outline'>Back</Button>
 							</Link>
