@@ -11,7 +11,7 @@ import { Logo } from '@/components/ui/logo';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router';
 
-const Navbar = ({ className }) => {
+const Navbar = ({ className, onMenuToggle }) => {
 	const { user, signout } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -30,7 +30,11 @@ const Navbar = ({ className }) => {
 			});
 		}
 	};
-
+	React.useEffect(() => {
+		if (typeof onMenuToggle === 'function') {
+			onMenuToggle(open);
+		}
+	}, [open, onMenuToggle]);
 	return (
 		<nav className={cn('w-full', className)}>
 			<div className='flex items-center justify-between'>
@@ -163,12 +167,16 @@ const Navbar = ({ className }) => {
 								<Link to='/dashboard' onClick={() => setOpen(false)}>
 									<Button className='w-full'>Dashboard</Button>
 								</Link>
-								<Button
-									variant='outline'
-									onClick={handleLogout}
-									className='w-full'>
-									Logout
-								</Button>
+								<button
+									className='flex items-center justify-center lg:hidden'
+									onClick={() => setOpen((prev) => !prev)}
+									aria-label='Toggle menu'>
+									{open ? (
+										<X className='size-6' />
+									) : (
+										<Menu className='size-6' />
+									)}
+								</button>
 							</React.Fragment>
 						) : (
 							<Link to='/auth/signin' onClick={() => setOpen(false)}>

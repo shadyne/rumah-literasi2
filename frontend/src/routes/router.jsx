@@ -12,6 +12,7 @@ import About from '@/pages/about';
 import Contact from '@/pages/contact';
 import SignIn from '@/pages/auth/sign-in';
 import SignUp from '@/pages/auth/sign-up';
+import SignUpVerify from '@/pages/auth/verify-email';
 import OneTimePassword from '@/pages/auth/otp';
 import ProfileDetail from '@/pages/setting/profile';
 import ForgotPassword from '@/pages/auth/forgot-password';
@@ -41,44 +42,44 @@ const ListUsers = load(() => import('~/members/list-member'));
 const AddUser = load(() => import('~/members/create-member'));
 const EditUser = load(() => import('~/members/edit-member'));
 
-const ListBookDonations = load(() =>
-	import('~/book-donations/list-book-donations')
+const ListBookDonations = load(
+	() => import('~/book-donations/list-book-donations')
 );
-const AddBookDonation = load(() =>
-	import('~/book-donations/create-book-donation')
+const AddBookDonation = load(
+	() => import('~/book-donations/create-book-donation')
 );
-const AppendBookDonation = load(() =>
-	import('~/book-donations/append-book-donation')
+const AppendBookDonation = load(
+	() => import('~/book-donations/append-book-donation')
 );
-const UpdateBookDonation = load(() =>
-	import('~/book-donations/update-book-donation')
+const UpdateBookDonation = load(
+	() => import('~/book-donations/update-book-donation')
 );
-const EditBookDonation = load(() =>
-	import('~/book-donations/edit-book-donation')
+const EditBookDonation = load(
+	() => import('~/book-donations/edit-book-donation')
 );
-const DetailBookDonation = load(() =>
-	import('~/book-donations/detail-book-donation')
+const DetailBookDonation = load(
+	() => import('~/book-donations/detail-book-donation')
 );
-const ShowBookDonation = load(() =>
-	import('~/book-donations/show-book-donation')
+const ShowBookDonation = load(
+	() => import('~/book-donations/show-book-donation')
 );
-const CourierBookDonation = load(() =>
-	import('~/book-donations/courier-book-donation')
+const CourierBookDonation = load(
+	() => import('~/book-donations/courier-book-donation')
 );
-const ReviewBookDonation = load(() =>
-	import('~/book-donations/review-book-donation')
+const ReviewBookDonation = load(
+	() => import('~/book-donations/review-book-donation')
 );
-const ListDonations = load(() =>
-	import('~/financial-donations/list-financial-donations')
+const ListDonations = load(
+	() => import('~/financial-donations/list-financial-donations')
 );
-const AddDonation = load(() =>
-	import('~/financial-donations/create-financial-donation')
+const AddDonation = load(
+	() => import('~/financial-donations/create-financial-donation')
 );
-const EditDonation = load(() =>
-	import('~/financial-donations/edit-financial-donation')
+const EditDonation = load(
+	() => import('~/financial-donations/edit-financial-donation')
 );
-const ShowDonation = load(() =>
-	import('~/financial-donations/show-financial-donation')
+const ShowDonation = load(
+	() => import('~/financial-donations/show-financial-donation')
 );
 
 const ListAddresses = load(() => import('~/addresses/list-addresses'));
@@ -88,11 +89,11 @@ const ShowAddress = load(() => import('~/addresses/show-address'));
 const ShowMerchant = load(() => import('~/merchant/show-merchant'));
 const EditMerchant = load(() => import('~/merchant/edit-merchant'));
 
-const ListLogs = load(() =>
-	import('@/pages/dashboard/transaction-log/list-logs')
+const ListLogs = load(
+	() => import('@/pages/dashboard/transaction-log/list-logs')
 );
-const ShowLog = load(() =>
-	import('@/pages/dashboard/transaction-log/show-log')
+const ShowLog = load(
+	() => import('@/pages/dashboard/transaction-log/show-log')
 );
 
 const Router = () => {
@@ -116,6 +117,7 @@ const Router = () => {
 					<Route path='otp' element={<OneTimePassword />} />
 					<Route path='forgot-password' element={<ForgotPassword />} />
 					<Route path='reset-password' element={<ResetPassword />} />
+					<Route path='verify-email' element={<SignUpVerify />} />
 				</Route>
 
 				<Route path='dashboard' element={<DashboardLayout />}>

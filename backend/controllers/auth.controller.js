@@ -223,6 +223,31 @@ const AuthController = {
 			next(err);
 		}
 	},
+	async resendEmail(req, res, next) {
+		try {
+			const { email } = req.body;
+			if (!email) throw new ApiError(400, 'Email is required');
+
+			const user = await User.findOne({ where: { email } });
+			if (!user) throw new ApiError(404, 'User not found');
+
+			if (user.is_verified) {
+				throw new ApiError(400, 'Email already verified');
+			}
+
+			const token = Encoder.encode(user.uuid);
+			const url = new URL(process.env.APP_URL);
+			url.pathname = '/api/auth/verify';
+			url.searchParams.set('token', token);
+			const href = url.toString();
+
+			await EmailController.verify(href, user);
+
+			return res.json(new ApiResponse('Verification email sent successfully'));
+		} catch (error) {
+			next(error);
+		}
+	},
 };
 
 module.exports = AuthController;

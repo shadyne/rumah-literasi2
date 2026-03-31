@@ -12,6 +12,7 @@ router.post('/validate', AuthController.validate);
 router.post('/forgot-password', AuthController.forgot);
 router.get('/recover-password', AuthController.recover);
 router.post('/reset-password', AuthController.reset);
+router.post('/resend-verification', AuthController.resendEmail);
 router.get('/profile', authenticate, AuthController.profile);
 
 module.exports = router;

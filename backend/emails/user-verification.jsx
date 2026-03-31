@@ -65,7 +65,7 @@ const UserVerification = ({ href = '{{href}}', name = '{{name}}' }) => {
 					<Hr />
 
 					<Section className='text-center'>
-						<Text>Rumah Literasi</Text>
+						<Text>Mraen Mimpi</Text>
 					</Section>
 				</Container>
 			</Body>

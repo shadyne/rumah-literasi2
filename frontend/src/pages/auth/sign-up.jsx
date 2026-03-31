@@ -50,7 +50,9 @@ const SignUp = () => {
 			toast('Register successful', {
 				description: 'You are now registered',
 			});
-			navigate('/auth/signin');
+			navigate('/auth/verify-email', {
+				state: { emailSent: true, email: data.email },
+			});
 		} catch (error) {
 			toast.error('Failed to register', {
 				description: error.response?.data?.message || error.message,

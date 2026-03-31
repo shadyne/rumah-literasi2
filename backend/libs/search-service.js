@@ -20,7 +20,13 @@ class SearchService {
 		}
 
 		const dialect = this.sequelize.getDialect();
-		const operator = dialect === 'sqlite' ? Op.like : Op.iLike;
+		let operator;
+		if (dialect === 'postgres') {
+			operator = Op.iLike;
+		} else {
+			operator = Op.like;
+		}
+
 		const related = fields.some((field) => field.includes('$'));
 		const where = {};
 
