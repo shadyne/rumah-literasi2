@@ -4,7 +4,7 @@ import { Link, Outlet } from 'react-router';
 import { Logo } from '@/components/ui/logo';
 import Sidebar from '@/components/sidebar';
 import Profile from '@/components/profile';
-import { MobileHeader } from '@/components/mobile-header';
+import { MobileHeader } from '@/components/mobile-back';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/hooks/use-auth';
 

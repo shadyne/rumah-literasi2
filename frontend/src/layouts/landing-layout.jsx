@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router';
 
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
-import { MobileHeader } from '@/components/mobile-header';
+import { MobileHeader } from '@/components/mobile-back';
 
 const LandingLayout = () => {
 	const location = useLocation();
