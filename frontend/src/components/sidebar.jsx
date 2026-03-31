@@ -123,9 +123,7 @@ const SidebarContent = ({ onClose }) => {
 	);
 };
 
-const Sidebar = ({ className }) => {
-	const [mobileOpen, setMobileOpen] = React.useState(false);
-
+const Sidebar = ({ className, mobileOpen, setMobileOpen }) => {
 	const handleClose = () => setMobileOpen(false);
 
 	return (
@@ -133,13 +131,6 @@ const Sidebar = ({ className }) => {
 			<aside className={cn('bg-zinc-100', className)}>
 				<SidebarContent onClose={undefined} />
 			</aside>
-
-			<button
-				className='fixed z-50 bottom-4 right-4 flex items-center justify-center bg-primary-500 text-white rounded-full size-12 shadow-lg lg:hidden'
-				onClick={() => setMobileOpen(true)}
-				aria-label='Open sidebar'>
-				<Menu className='size-5' />
-			</button>
 
 			{mobileOpen && (
 				<div className='fixed inset-0 z-50 lg:hidden'>
