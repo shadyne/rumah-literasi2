@@ -14,7 +14,6 @@ import { EventCard } from '@/components/events/event-card';
 import { useResultState } from '@/hooks/use-result-state';
 import { usePagination } from '@/hooks/use-pagination';
 import { Pagination } from '@/components/pagination';
-import { FadeIn } from '@/components/fade-in';
 
 const ListEvents = () => {
 	const { page, limit } = usePagination();
@@ -37,26 +36,22 @@ const ListEvents = () => {
 
 	return (
 		<div className='container flex flex-col min-h-screen gap-8 py-24 max-w-7xl'>
-			<FadeIn direction='up' duration={600}>
-				<Heading>
-					<Supertitle>Daftar Acara</Supertitle>
-					<HeadingDescription>
-						Temukan acara kami yang akan datang maupun yang telah berlalu.
-					</HeadingDescription>
-				</Heading>
-			</FadeIn>
+			<Heading>
+				<Supertitle>Events List</Supertitle>
+				<HeadingDescription>
+					Discover our upcoming and past events.
+				</HeadingDescription>
+			</Heading>
 
 			<Error error={!loading && error} />
 			<Empty empty={!loading && empty} />
 			<Loading loading={loading} />
 
 			<div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
-				{result.map((event, i) => (
-					<FadeIn key={event.id} direction='up' delay={i * 80} duration={600}>
-						<Link to={'/events/' + event.id}>
-							<EventCard event={event} />
-						</Link>
-					</FadeIn>
+				{result.map((event) => (
+					<Link to={'/events/' + event.id} key={event.id}>
+						<EventCard event={event} />
+					</Link>
 				))}
 			</div>
 

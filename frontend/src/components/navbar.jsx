@@ -20,23 +20,21 @@ const Navbar = ({ className, onMenuToggle }) => {
 	const handleLogout = async () => {
 		try {
 			await signout();
-			toast('Berhasil keluar', {
-				description: 'Anda telah berhasil keluar dari akun',
+			toast('Logout successful', {
+				description: 'You are now logged out',
 			});
 			navigate('/auth/signin');
 		} catch (error) {
-			toast.error('Gagal keluar', {
+			toast.error('Failed to logout', {
 				description: error.response?.data?.message || error.message,
 			});
 		}
 	};
-
 	React.useEffect(() => {
 		if (typeof onMenuToggle === 'function') {
 			onMenuToggle(open);
 		}
 	}, [open, onMenuToggle]);
-
 	return (
 		<nav className={cn('w-full', className)}>
 			<div className='flex items-center justify-between'>
@@ -52,18 +50,20 @@ const Navbar = ({ className, onMenuToggle }) => {
 								'hover:text-primary-500',
 								location.pathname === '/' && 'text-primary-500'
 							)}>
-							Beranda
+							Home
 						</Link>
 					</li>
 					<li>
-						<Link
-							to='/about'
-							className={cn(
-								'hover:text-primary-500',
-								location.pathname === '/about' && 'text-primary-500'
-							)}>
-							Tentang
-						</Link>
+						<li>
+							<Link
+								to='/about'
+								className={cn(
+									'hover:text-primary-500',
+									location.pathname === '/about' && 'text-primary-500'
+								)}>
+								About
+							</Link>
+						</li>
 					</li>
 					<li>
 						<Link
@@ -72,7 +72,7 @@ const Navbar = ({ className, onMenuToggle }) => {
 								'hover:text-primary-500',
 								location.pathname === '/events' && 'text-primary-500'
 							)}>
-							Acara
+							Events
 						</Link>
 					</li>
 					<li>
@@ -82,7 +82,7 @@ const Navbar = ({ className, onMenuToggle }) => {
 								'hover:text-primary-500',
 								location.pathname === '/contact' && 'text-primary-500'
 							)}>
-							Kontak
+							Contact
 						</Link>
 					</li>
 				</ul>
@@ -91,15 +91,15 @@ const Navbar = ({ className, onMenuToggle }) => {
 					{user ? (
 						<React.Fragment>
 							<Button variant='outline' onClick={handleLogout}>
-								Keluar
+								Logout
 							</Button>
 							<Link to='/dashboard'>
-								<Button>Dasbor</Button>
+								<Button>Dashboard</Button>
 							</Link>
 						</React.Fragment>
 					) : (
 						<Link to='/auth/signin'>
-							<Button>Masuk</Button>
+							<Button>Login</Button>
 						</Link>
 					)}
 				</div>
@@ -107,7 +107,7 @@ const Navbar = ({ className, onMenuToggle }) => {
 				<button
 					className='flex items-center justify-center lg:hidden'
 					onClick={() => setOpen((prev) => !prev)}
-					aria-label='Buka menu'>
+					aria-label='Toggle menu'>
 					{open ? <X className='size-6' /> : <Menu className='size-6' />}
 				</button>
 			</div>
@@ -123,7 +123,7 @@ const Navbar = ({ className, onMenuToggle }) => {
 									location.pathname === '/' && 'text-primary-500'
 								)}
 								onClick={() => setOpen(false)}>
-								Beranda
+								Home
 							</Link>
 						</li>
 						<li>
@@ -134,7 +134,7 @@ const Navbar = ({ className, onMenuToggle }) => {
 									location.pathname === '/about' && 'text-primary-500'
 								)}
 								onClick={() => setOpen(false)}>
-								Tentang
+								About
 							</Link>
 						</li>
 						<li>
@@ -145,7 +145,7 @@ const Navbar = ({ className, onMenuToggle }) => {
 									location.pathname === '/events' && 'text-primary-500'
 								)}
 								onClick={() => setOpen(false)}>
-								Acara
+								Events
 							</Link>
 						</li>
 						<li>
@@ -156,7 +156,7 @@ const Navbar = ({ className, onMenuToggle }) => {
 									location.pathname === '/contact' && 'text-primary-500'
 								)}
 								onClick={() => setOpen(false)}>
-								Kontak
+								Contact
 							</Link>
 						</li>
 					</ul>
@@ -165,18 +165,22 @@ const Navbar = ({ className, onMenuToggle }) => {
 						{user ? (
 							<React.Fragment>
 								<Link to='/dashboard' onClick={() => setOpen(false)}>
-									<Button className='w-full'>Dasbor</Button>
+									<Button className='w-full'>Dashboard</Button>
 								</Link>
-								<Button
-									variant='outline'
-									onClick={handleLogout}
-									className='w-full'>
-									Keluar
-								</Button>
+								<button
+									className='flex items-center justify-center lg:hidden'
+									onClick={() => setOpen((prev) => !prev)}
+									aria-label='Toggle menu'>
+									{open ? (
+										<X className='size-6' />
+									) : (
+										<Menu className='size-6' />
+									)}
+								</button>
 							</React.Fragment>
 						) : (
 							<Link to='/auth/signin' onClick={() => setOpen(false)}>
-								<Button className='w-full'>Masuk</Button>
+								<Button className='w-full'>Login</Button>
 							</Link>
 						)}
 					</div>

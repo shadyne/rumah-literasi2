@@ -2,7 +2,6 @@ import * as React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
 import LazyRoute from '@/routes/lazy';
-import ScrollToTop from '@/components/scroll-to-top';
 import AuthLayout from '@/layouts/auth-layout';
 import AuthorizeLayout from '@/layouts/authorize-layout';
 import LandingLayout from '@/layouts/landing-layout';
@@ -100,8 +99,6 @@ const ShowLog = load(
 const Router = () => {
 	return (
 		<BrowserRouter>
-			<ScrollToTop />
-
 			<Routes>
 				<Route path='/' element={<LandingLayout />}>
 					<Route index element={<Home />} />
