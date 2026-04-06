@@ -2,14 +2,12 @@ import * as React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 
 import LazyRoute from '@/routes/lazy';
+import ScrollToTop from '@/components/scroll-to-top';
 import AuthLayout from '@/layouts/auth-layout';
 import AuthorizeLayout from '@/layouts/authorize-layout';
 import LandingLayout from '@/layouts/landing-layout';
 import DashboardLayout from '@/layouts/dashboard-layout';
 
-import Home from '@/pages/home';
-import About from '@/pages/about';
-import Contact from '@/pages/contact';
 import SignIn from '@/pages/auth/sign-in';
 import SignUp from '@/pages/auth/sign-up';
 import SignUpVerify from '@/pages/auth/verify-email';
@@ -30,6 +28,10 @@ const load = (callback) => {
 	const Component = React.lazy(callback);
 	return (props) => <LazyRoute component={Component} {...props} />;
 };
+
+const Home = load(() => import('@/pages/home'));
+const About = load(() => import('@/pages/about'));
+const Contact = load(() => import('@/pages/contact'));
 
 const Dashboard = load(() => import('~/dashboard'));
 
@@ -99,6 +101,8 @@ const ShowLog = load(
 const Router = () => {
 	return (
 		<BrowserRouter>
+			<ScrollToTop />
+
 			<Routes>
 				<Route path='/' element={<LandingLayout />}>
 					<Route index element={<Home />} />

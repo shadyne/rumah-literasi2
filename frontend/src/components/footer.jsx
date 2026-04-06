@@ -5,6 +5,8 @@ import { Logo } from '@/components/ui/logo';
 import { WIDGET_CONTACT, WIDGET_NAV, WIDGET_SOCIAL } from '@/libs/constant';
 
 const Footer = () => {
+	const currentYear = new Date().getFullYear();
+
 	return (
 		<div className='grid gap-6'>
 			<Link to='/'>
@@ -13,12 +15,16 @@ const Footer = () => {
 
 			<div className='grid gap-8 lg:grid-cols-5'>
 				<p className='lg:col-span-2'>
-					Peluang kebaikan untuk kamu yang ada di Yogyakarta dan sekitarnya. Sanggar Taman Mraen Mimpi menerima donasi berupa barang yang sudah tidak terpakai, 
-					seperti: kertas, kardus, koran, kaleng, botol, dll. Tim kami siap mengambil donasi tersebut ke lokasi untuk dijual kembali dan hasilnya akan digunakan sebagai operasional utama kegiatan Mraen Mimpi.
+					Peluang kebaikan untuk kamu yang ada di Yogyakarta dan sekitarnya.
+					Sanggar Taman Mraen Mimpi menerima donasi berupa barang yang sudah
+					tidak terpakai, seperti: kertas, kardus, koran, kaleng, botol, dll.
+					Tim kami siap mengambil donasi tersebut ke lokasi untuk dijual kembali
+					dan hasilnya akan digunakan sebagai operasional utama kegiatan Mraen
+					Mimpi.
 				</p>
 
 				<div className='div'>
-					<h5 className='mb-4 font-semibold'>Navigation</h5>
+					<h5 className='mb-4 font-semibold'>Navigasi</h5>
 					<ul className='flex flex-col gap-3'>
 						{WIDGET_NAV.map((menu) => (
 							<li key={menu.href}>
@@ -31,7 +37,7 @@ const Footer = () => {
 				</div>
 
 				<div>
-					<h5 className='mb-4 font-semibold'>Contact</h5>
+					<h5 className='mb-4 font-semibold'>Kontak</h5>
 					<ul className='flex flex-col gap-3'>
 						{WIDGET_CONTACT.map((menu) => {
 							const Icon = menu.icon;
@@ -50,7 +56,7 @@ const Footer = () => {
 				</div>
 
 				<div>
-					<h5 className='mb-4 font-semibold'>Social</h5>
+					<h5 className='mb-4 font-semibold'>Media Sosial</h5>
 					<ul className='flex flex-col gap-3'>
 						{WIDGET_SOCIAL.map((menu) => {
 							const Icon = menu.icon;
@@ -67,6 +73,12 @@ const Footer = () => {
 						})}
 					</ul>
 				</div>
+			</div>
+
+			<div className='pt-6 border-t border-zinc-200'>
+				<p className='text-sm text-zinc-500 text-center'>
+					&copy; {currentYear} Mraen Mimpi. Seluruh hak cipta dilindungi.
+				</p>
 			</div>
 		</div>
 	);

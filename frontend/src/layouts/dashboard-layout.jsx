@@ -6,7 +6,7 @@ import { Logo } from '@/components/ui/logo';
 import Profile from '@/components/profile';
 import { MobileHeader } from '@/components/mobile-back';
 import { useAuth } from '@/hooks/use-auth';
-import Sidebar, { SidebarTrigger } from '@/components/sidebar';
+import Sidebar from '@/components/sidebar';
 
 const DashboardLayout = () => {
 	const { user, loading } = useAuth();
