@@ -41,7 +41,7 @@ const LandingLayout = () => {
 
 			<div className='w-full bg-primary-500 py-4'>
 				<p className='text-sm text-black text-center'>
-					© {currentYear} Mraen Mimpi. Seluruh hak cipta dilindungi.
+					Mraen Mimpi {currentYear}
 				</p>
 			</div>
 		</React.Fragment>
