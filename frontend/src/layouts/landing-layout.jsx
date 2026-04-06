@@ -11,6 +11,8 @@ const LandingLayout = () => {
 	const navigate = useNavigate();
 	const isHome = location.pathname === '/';
 	const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+	const currentYear = new Date().getFullYear();
+
 	return (
 		<React.Fragment>
 			<div className='container max-w-7xl relative'>

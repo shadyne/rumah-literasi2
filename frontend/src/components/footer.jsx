@@ -5,8 +5,6 @@ import { Logo } from '@/components/ui/logo';
 import { WIDGET_CONTACT, WIDGET_NAV, WIDGET_SOCIAL } from '@/libs/constant';
 
 const Footer = () => {
-	const currentYear = new Date().getFullYear();
-
 	return (
 		<div className='grid gap-6'>
 			<Link to='/'>
