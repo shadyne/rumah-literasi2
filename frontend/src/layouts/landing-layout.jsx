@@ -40,7 +40,7 @@ const LandingLayout = () => {
 			</div>
 
 			<div className='w-full bg-primary-500 py-4'>
-				<p className='text-sm text-black text-center'>
+				<p className='text-sm text-primary font-bold text-center'>
 					Mraen Mimpi {currentYear}
 				</p>
 			</div>
