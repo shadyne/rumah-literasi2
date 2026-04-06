@@ -40,11 +40,9 @@ const LandingLayout = () => {
 			</div>
 
 			<div className='w-full h-6 bg-primary-500'>
-				<div className='pt-6 border-t border-zinc-200'>
-					<p className='text-sm text-zinc-500 text-center'>
-						&copy; {currentYear} Mraen Mimpi. Seluruh hak cipta dilindungi.
-					</p>
-				</div>
+				<p className='text-sm text-zinc-500 text-center'>
+					&copy; {currentYear} Mraen Mimpi. Seluruh hak cipta dilindungi.
+				</p>
 			</div>
 		</React.Fragment>
 	);
