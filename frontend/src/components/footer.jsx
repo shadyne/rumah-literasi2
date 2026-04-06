@@ -74,12 +74,6 @@ const Footer = () => {
 					</ul>
 				</div>
 			</div>
-
-			<div className='pt-6 border-t border-zinc-200'>
-				<p className='text-sm text-zinc-500 text-center'>
-					&copy; {currentYear} Mraen Mimpi. Seluruh hak cipta dilindungi.
-				</p>
-			</div>
 		</div>
 	);
 };
