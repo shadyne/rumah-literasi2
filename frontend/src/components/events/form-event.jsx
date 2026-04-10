@@ -53,7 +53,7 @@ const EventForm = ({ initial, action, label }) => {
 	});
 
 	const media = watch('media');
-	const selected = media && media[0].size;
+	const selected = media?.[0]?.size;
 	const filesize = selected ? formatByte(selected) : 0;
 
 	return (
@@ -77,7 +77,10 @@ const EventForm = ({ initial, action, label }) => {
 					placeholder='Enter your description'
 					{...register('description')}
 				/>
-				<Hint>Detailed description of the event, including objectives and activities.</Hint>
+				<Hint>
+					Detailed description of the event, including objectives and
+					activities.
+				</Hint>
 				{errors.description && (
 					<span className='text-red-500'>{errors.description.message}</span>
 				)}
@@ -108,7 +111,9 @@ const EventForm = ({ initial, action, label }) => {
 					placeholder='Enter event location'
 					{...register('location')}
 				/>
-				<Hint>Complete address or location details where the event will be held.</Hint>
+				<Hint>
+					Complete address or location details where the event will be held.
+				</Hint>
 				{errors.location && (
 					<span className='text-red-500'>{errors.location.message}</span>
 				)}
