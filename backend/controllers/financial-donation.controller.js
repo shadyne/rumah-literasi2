@@ -19,6 +19,8 @@ const FinancialDonationController = {
 
 			const filters = {};
 			if (status) filters.status = status;
+
+			const paginate = searchService.paginate({ page, limit });
 			const result = await searchService.search(
 				fd,
 				search,
@@ -33,9 +35,9 @@ const FinancialDonationController = {
 					rows: result.rows,
 					pagination: {
 						total: result.count,
-						page: result.page,
-						limit: result.limit,
-						pages: Math.ceil(result.count / result.limit),
+						page: paginate.page,
+						limit: paginate.limit,
+						pages: Math.ceil(result.count / paginate.limit),
 					},
 				})
 			);

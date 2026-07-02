@@ -53,7 +53,7 @@ class SearchService {
 		const limit = Math.min(parseInt(pagination.limit) || 5, this.maximum);
 		const offset = (page - 1) * limit;
 
-		return { limit, offset };
+		return { page, limit, offset };
 	}
 }
 

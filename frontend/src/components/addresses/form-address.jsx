@@ -13,13 +13,10 @@ import { Hint } from '@/components/ui/hint';
 import { DEFAULT_LOCATION } from '@/libs/constant';
 import { useConfirm } from '@/hooks/use-confirm';
 import { useLocation } from '@/hooks/use-location';
-import {
-	geocodeAddress,
-	reverseGeocode,
-	haversineKm,
-} from '@/libs/geocoder';
+import { reverseGeocode } from '@/libs/geocoder';
 
-const MAX_DISTANCE_FROM_DISTRICT_KM = 15;
+// Batas kasar wilayah Indonesia untuk validasi koordinat manual.
+const ID_BOUNDS = { latMin: -11, latMax: 6.5, lngMin: 94.5, lngMax: 141.5 };
 
 const AddressSchema = z.object({
 	name: z.string().min(1, 'Nama alamat wajib diisi'),
@@ -28,9 +25,15 @@ const AddressSchema = z.object({
 	street_address: z.string().min(3, 'Alamat jalan terlalu pendek'),
 	province_id: z.string().min(1, 'Pilih provinsi'),
 	city_id: z.string().min(1, 'Pilih kota'),
-	district_id: z.string().min(1, 'Pilih kecamatan'),
-	latitude: z.coerce.number(),
-	longitude: z.coerce.number(),
+	district_name: z.string().min(1, 'Kecamatan wajib diisi'),
+	latitude: z.coerce
+		.number({ invalid_type_error: 'Latitude wajib diisi' })
+		.min(ID_BOUNDS.latMin, 'Latitude di luar wilayah Indonesia')
+		.max(ID_BOUNDS.latMax, 'Latitude di luar wilayah Indonesia'),
+	longitude: z.coerce
+		.number({ invalid_type_error: 'Longitude wajib diisi' })
+		.min(ID_BOUNDS.lngMin, 'Longitude di luar wilayah Indonesia')
+		.max(ID_BOUNDS.lngMax, 'Longitude di luar wilayah Indonesia'),
 	zipcode: z.string().regex(/^\d{5}$/, 'Kode pos harus 5 digit angka'),
 	note: z.string().optional(),
 	formatted_address: z.string().optional(),
@@ -52,7 +55,6 @@ const adminNameMatches = (a, b) => {
 	const nb = normalizeAdminName(b);
 	if (!na || !nb) return false;
 	if (na === nb || na.includes(nb) || nb.includes(na)) return true;
-	// Abaikan perbedaan spasi, mis. "Setia Budi" (DB) vs "Setiabudi" (OSM).
 	const ca = na.replace(/\s+/g, '');
 	const cb = nb.replace(/\s+/g, '');
 	return ca === cb || ca.includes(cb) || cb.includes(ca);
@@ -60,23 +62,8 @@ const adminNameMatches = (a, b) => {
 
 const PROVINCE_FIELDS = ['state', 'province', 'region', 'city', 'county'];
 const CITY_FIELDS = ['city', 'county', 'town', 'municipality', 'state_district'];
-const DISTRICT_FIELDS = [
-	'city_district',
-	'subdistrict',
-	'suburb',
-	'village',
-	'neighbourhood',
-	'hamlet',
-	'town',
-];
 
-// Pencocok wilayah administratif yang tahan terhadap inkonsistensi Nominatim.
-// Nama wilayah (provinsi/kota/kecamatan) kadang tidak ada sebagai nilai di
-// objek `address`, dan hanya muncul di `display_name`. Maka kita cek:
-//   1) field-field prioritas di objek address, lalu
-//   2) tiap segmen pada display_name.
-// `value` = nilai untuk ditampilkan (segmen yang cocok bila ketemu, atau
-// field prioritas pertama yang terisi bila tidak ada yang cocok).
+// Cek kecocokan wilayah terhadap field address + segmen display_name.
 const probeAdmin = (addr, displayName, fields, targetName) => {
 	if (!targetName) return { matched: null, value: '' };
 
@@ -100,16 +87,12 @@ const probeAdmin = (addr, displayName, fields, targetName) => {
 
 const AddressForm = ({ initial, action, label }) => {
 	const { confirm } = useConfirm();
-	const [geocoding, setGeocoding] = React.useState(false);
-	const [geocodeError, setGeocodeError] = React.useState('');
 	const [validation, setValidation] = React.useState(null);
 	const [validating, setValidating] = React.useState(false);
 	const [submitError, setSubmitError] = React.useState('');
 	const {
 		province,
-		city,
 		provinces,
-		districts,
 		cities,
 		loading,
 		handleCityChange,
@@ -137,7 +120,7 @@ const AddressForm = ({ initial, action, label }) => {
 			street_address: '',
 			province_id: '',
 			city_id: '',
-			district_id: '',
+			district_name: '',
 			zipcode: '',
 			note: '',
 			formatted_address: '',
@@ -147,9 +130,6 @@ const AddressForm = ({ initial, action, label }) => {
 		},
 	});
 
-	const lastForwardResultRef = React.useRef(null);
-
-	const watchedDistrictId = watch('district_id');
 	const watchedCityId = watch('city_id');
 	const watchedProvinceId = watch('province_id');
 	const watchedZipcode = watch('zipcode');
@@ -166,71 +146,35 @@ const AddressForm = ({ initial, action, label }) => {
 		() => cities.find((c) => String(c.id) === String(watchedCityId))?.name || '',
 		[cities, watchedCityId]
 	);
-	const districtName = React.useMemo(
-		() =>
-			districts.find((d) => String(d.id) === String(watchedDistrictId))?.name ||
-			'',
-		[districts, watchedDistrictId]
-	);
 
-	const districtCentroid = React.useMemo(() => {
-		const d = districts.find(
-			(x) => String(x.id) === String(watchedDistrictId)
-		);
-		if (!d || !d.latitude || !d.longitude) return null;
-		return { lat: d.latitude, lng: d.longitude };
-	}, [districts, watchedDistrictId]);
-
-	const distanceFromDistrictKm = React.useMemo(() => {
-		if (!districtCentroid || lat == null || lng == null) return null;
-		return haversineKm(lat, lng, districtCentroid.lat, districtCentroid.lng);
-	}, [districtCentroid, lat, lng]);
-
+	// Verifikasi lunak: cocokkan titik peta dengan provinsi/kota + saran kode pos.
 	React.useEffect(() => {
-		if (!lat || !lng) {
+		if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng)) {
 			setValidation(null);
 			return;
 		}
 
-		const cached = lastForwardResultRef.current;
-		const reuseForward =
-			cached &&
-			Math.abs(cached.lat - lat) < 1e-6 &&
-			Math.abs(cached.lng - lng) < 1e-6;
-
 		setValidating(true);
 		const handler = setTimeout(async () => {
-			const result = reuseForward
-				? { display_name: cached.display_name, address: cached.address }
-				: await reverseGeocode(lat, lng);
+			const result = await reverseGeocode(lat, lng);
 			setValidating(false);
 			if (!result) {
-				setValidation({ ok: null, displayAddress: '', mismatches: [] });
+				setValidation({ displayAddress: '' });
 				return;
 			}
 			const addr = result.address;
 			const dn = result.display_name;
 			const provinceProbe = probeAdmin(addr, dn, PROVINCE_FIELDS, provinceName);
-			const osmProvince = provinceProbe.value;
 			const cityProbe = probeAdmin(addr, dn, CITY_FIELDS, cityName);
-			const districtProbe = probeAdmin(addr, dn, DISTRICT_FIELDS, districtName);
-			const osmCity = cityProbe.value;
-			const osmDistrict = districtProbe.value;
 			const osmPostcode = addr.postcode || '';
-
-			const provinceMatch = provinceName ? provinceProbe.matched : null;
-			const cityMatch = cityName ? cityProbe.matched : null;
-			const districtMatch = districtName ? districtProbe.matched : null;
 
 			setValidation({
 				displayAddress: result.display_name,
-				osmProvince,
-				osmCity,
-				osmDistrict,
+				osmProvince: provinceProbe.value,
+				osmCity: cityProbe.value,
 				osmPostcode,
-				provinceMatch,
-				cityMatch,
-				districtMatch,
+				provinceMatch: provinceName ? provinceProbe.matched : null,
+				cityMatch: cityName ? cityProbe.matched : null,
 				zipcodeMatch:
 					osmPostcode && watchedZipcode
 						? osmPostcode === watchedZipcode
@@ -239,116 +183,15 @@ const AddressForm = ({ initial, action, label }) => {
 			setValue('formatted_address', result.display_name || '', {
 				shouldDirty: true,
 			});
-		}, reuseForward ? 0 : 800);
+		}, 800);
 		return () => clearTimeout(handler);
-	}, [lat, lng, provinceName, cityName, districtName, watchedZipcode, setValue]);
+	}, [lat, lng, provinceName, cityName, watchedZipcode, setValue]);
 
-	React.useEffect(() => {
-		if (!watchedDistrictId || !districts.length) return;
-
-		const found = districts.find(
-			(d) => String(d.id) === String(watchedDistrictId)
-		);
-
-		if (
-			found &&
-			found.latitude &&
-			found.longitude &&
-			found.latitude !== 0 &&
-			found.longitude !== 0
-		) {
-			lastForwardResultRef.current = null;
-			setValue('latitude', found.latitude, { shouldDirty: true });
-			setValue('longitude', found.longitude, { shouldDirty: true });
-			setValue('location_source', 'centroid_fallback', { shouldDirty: true });
-			setValue('is_location_confirmed', false, { shouldDirty: true });
-		}
-	}, [watchedDistrictId, districts, setValue]);
-
-	React.useEffect(() => {
-		if (!watchedCityId || !cities.length) return;
-
-		const currentDistrict = watch('district_id');
-		if (currentDistrict) return;
-
-		const found = cities.find((c) => String(c.id) === String(watchedCityId));
-		if (
-			found &&
-			found.latitude &&
-			found.longitude &&
-			found.latitude !== 0 &&
-			found.longitude !== 0
-		) {
-			setValue('latitude', found.latitude, { shouldDirty: true });
-			setValue('longitude', found.longitude, { shouldDirty: true });
-		}
-	}, [watchedCityId, cities, setValue]);
-
-	React.useEffect(() => {
-		if (!watchedProvinceId || !provinces.length) return;
-
-		const currentCity = watch('city_id');
-		if (currentCity) return;
-
-		const found = provinces.find(
-			(p) => String(p.id) === String(watchedProvinceId)
-		);
-		if (
-			found &&
-			found.latitude &&
-			found.longitude &&
-			found.latitude !== 0 &&
-			found.longitude !== 0
-		) {
-			setValue('latitude', found.latitude, { shouldDirty: true });
-			setValue('longitude', found.longitude, { shouldDirty: true });
-		}
-	}, [watchedProvinceId, provinces, setValue]);
-
-	const handleGeocode = async () => {
-		const streetAddress = watch('street_address');
-		if (!streetAddress || streetAddress.length < 5) {
-			setGeocodeError('Masukkan alamat jalan terlebih dahulu.');
-			return;
-		}
-
-		const query = [
-			streetAddress,
-			districtName,
-			cityName,
-			provinceName,
-			watchedZipcode,
-			'Indonesia',
-		]
-			.filter(Boolean)
-			.join(', ');
-
-		setGeocoding(true);
-		setGeocodeError('');
-
-		const result = await geocodeAddress(query);
-		setGeocoding(false);
-
-		if (result) {
-			lastForwardResultRef.current = {
-				lat: result.latitude,
-				lng: result.longitude,
-				display_name: result.display_name,
-				address: result.address || {},
-			};
-			setValue('latitude', result.latitude, { shouldDirty: true });
-			setValue('longitude', result.longitude, { shouldDirty: true });
-			setValue('formatted_address', result.display_name || '', {
-				shouldDirty: true,
-			});
-			setValue('location_source', 'geocoded', { shouldDirty: true });
-			setValue('is_location_confirmed', false, { shouldDirty: true });
-			setGeocodeError('');
-		} else {
-			setGeocodeError(
-				'Alamat tidak ditemukan. Coba perjelas nama jalan atau klik langsung di peta.'
-			);
-		}
+	const applyCoordinate = (nextLat, nextLng, source) => {
+		setValue('latitude', nextLat, { shouldDirty: true, shouldValidate: true });
+		setValue('longitude', nextLng, { shouldDirty: true, shouldValidate: true });
+		setValue('location_source', source, { shouldDirty: true });
+		setValue('is_location_confirmed', false, { shouldDirty: true });
 	};
 
 	const handleUseMyLocation = async () => {
@@ -363,17 +206,11 @@ const AddressForm = ({ initial, action, label }) => {
 				}
 				navigator.geolocation.getCurrentPosition(
 					(position) => {
-						lastForwardResultRef.current = null;
-						setValue('latitude', position.coords.latitude, {
-							shouldDirty: true,
-						});
-						setValue('longitude', position.coords.longitude, {
-							shouldDirty: true,
-						});
-						setValue('location_source', 'user_location', {
-							shouldDirty: true,
-						});
-						setValue('is_location_confirmed', false, { shouldDirty: true });
+						applyCoordinate(
+							position.coords.latitude,
+							position.coords.longitude,
+							'user_location'
+						);
 					},
 					() => {
 						alert(
@@ -394,12 +231,6 @@ const AddressForm = ({ initial, action, label }) => {
 			);
 			return;
 		}
-		if (validation && validation.provinceMatch === false) {
-			setSubmitError(
-				`Lokasi peta berada di provinsi "${validation.osmProvince}", tidak sesuai dengan provinsi "${provinceName}" yang dipilih. Geser penanda peta atau perbaiki pilihan provinsi sebelum menyimpan.`
-			);
-			return;
-		}
 		return action(values);
 	};
 
@@ -407,10 +238,7 @@ const AddressForm = ({ initial, action, label }) => {
 		<form onSubmit={handleSubmit(guardedSubmit)} className='grid gap-6 lg:grid-cols-2'>
 			<div>
 				<Label htmlFor='contact_name'>Nama Kontak</Label>
-				<Input
-					placeholder='Masukkan nama kontak'
-					{...register('contact_name')}
-				/>
+				<Input placeholder='Masukkan nama kontak' {...register('contact_name')} />
 				<Hint>Nama orang yang dapat dihubungi pada alamat ini.</Hint>
 				{errors.contact_name && (
 					<span className='text-red-500'>{errors.contact_name.message}</span>
@@ -419,10 +247,7 @@ const AddressForm = ({ initial, action, label }) => {
 
 			<div>
 				<Label htmlFor='contact_phone'>No. Telepon Kontak</Label>
-				<Input
-					placeholder='Masukkan nomor telepon'
-					{...register('contact_phone')}
-				/>
+				<Input placeholder='Masukkan nomor telepon' {...register('contact_phone')} />
 				<Hint>Nomor telepon orang yang dapat dihubungi.</Hint>
 				{errors.contact_phone && (
 					<span className='text-red-500'>{errors.contact_phone.message}</span>
@@ -443,28 +268,11 @@ const AddressForm = ({ initial, action, label }) => {
 
 			<div className='col-span-full'>
 				<Label htmlFor='street_address'>Alamat Jalan</Label>
-				<div className='flex gap-2 items-start'>
-					<Textarea
-						placeholder='Masukkan alamat lengkap, misal: Jl. Mawar No.10'
-						className='flex-1'
-						{...register('street_address')}
-					/>
-					<Button
-						type='button'
-						variant='outline'
-						disabled={geocoding}
-						onClick={handleGeocode}
-						className='flex-none mt-0 whitespace-nowrap'>
-						{geocoding ? 'Mencari...' : 'Cari di Peta'}
-					</Button>
-				</div>
-				<Hint>
-					Ketik alamat lengkap lalu klik "Cari di Peta" agar titik lokasi
-					menyesuaikan dengan nama jalan yang dicantumkan.
-				</Hint>
-				{geocodeError && (
-					<span className='text-amber-500 text-sm'>{geocodeError}</span>
-				)}
+				<Textarea
+					placeholder='Masukkan alamat lengkap, misal: Jl. Mawar No.10'
+					{...register('street_address')}
+				/>
+				<Hint>Tulis alamat selengkap mungkin agar mudah ditemukan kurir.</Hint>
 				{errors.street_address && (
 					<span className='text-red-500'>{errors.street_address.message}</span>
 				)}
@@ -482,8 +290,6 @@ const AddressForm = ({ initial, action, label }) => {
 								field.onChange(e);
 								handleProvinceChange(e.target.value);
 								setValue('city_id', '');
-								setValue('district_id', '');
-								setValue('zipcode', '');
 							}}
 							disabled={loading.provinces}>
 							<option value=''>Pilih provinsi</option>
@@ -512,8 +318,6 @@ const AddressForm = ({ initial, action, label }) => {
 							onChange={(e) => {
 								field.onChange(e);
 								handleCityChange(e.target.value);
-								setValue('district_id', '');
-								setValue('zipcode', '');
 							}}
 							disabled={loading.cities || !province}>
 							<option value=''>Pilih kota</option>
@@ -532,33 +336,14 @@ const AddressForm = ({ initial, action, label }) => {
 			</div>
 
 			<div>
-				<Label htmlFor='district_id'>Kecamatan</Label>
-				<Controller
-					name='district_id'
-					control={control}
-					render={({ field }) => (
-						<Select
-							{...field}
-							onChange={(e) => {
-								field.onChange(e);
-								setValue('zipcode', '');
-							}}
-							disabled={loading.districts || !city}>
-							<option value=''>Pilih kecamatan</option>
-							{districts.map((d) => (
-								<option key={d.id} value={d.id}>
-									{d.name}
-								</option>
-							))}
-						</Select>
-					)}
+				<Label htmlFor='district_name'>Kecamatan</Label>
+				<Input
+					placeholder='Ketik nama kecamatan, misal: Setiabudi'
+					{...register('district_name')}
 				/>
-				<Hint>
-					Pilih kecamatan. Peta akan otomatis menyesuaikan lokasi berdasarkan
-					kecamatan yang dipilih.
-				</Hint>
-				{errors.district_id && (
-					<span className='text-red-500'>{errors.district_id.message}</span>
+				<Hint>Ketik nama kecamatan sesuai alamat Anda.</Hint>
+				{errors.district_name && (
+					<span className='text-red-500'>{errors.district_name.message}</span>
 				)}
 			</div>
 
@@ -572,9 +357,8 @@ const AddressForm = ({ initial, action, label }) => {
 					{...register('zipcode')}
 				/>
 				<Hint>
-					Kode pos 5 digit sesuai kecamatan yang dipilih. Pastikan kode pos
-					sesuai dengan wilayah di atas agar pengiriman dapat diproses dengan
-					benar.
+					Kode pos 5 digit. Pastikan benar karena inilah yang dipakai untuk
+					menghitung ongkos kirim.
 				</Hint>
 				{errors.zipcode && (
 					<span className='text-red-500'>{errors.zipcode.message}</span>
@@ -587,35 +371,84 @@ const AddressForm = ({ initial, action, label }) => {
 					placeholder='Tambahkan catatan untuk kurir, misal: patokan rumah, nomor unit, dll.'
 					{...register('note')}
 				/>
-				<Hint>
-					Catatan ini membantu kurir menemukan lokasi Anda dengan lebih mudah.
-				</Hint>
+				<Hint>Catatan ini membantu kurir menemukan lokasi Anda dengan lebih mudah.</Hint>
 				{errors.note && (
 					<span className='text-red-500'>{errors.note.message}</span>
 				)}
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Lokasi di Peta</Label>
+				<Label htmlFor='location'>Titik Lokasi di Peta</Label>
 				<Hint className='mb-2'>
-					Klik "Cari di Peta" pada alamat jalan untuk menyesuaikan titik secara
-					otomatis, atau klik langsung di peta untuk menggeser penanda.
+					Geser penanda di peta, klik "Gunakan lokasi saya", atau isi koordinat
+					(latitude & longitude) secara manual di bawah.
 				</Hint>
 				<Map
 					location={{ latitude: lat, longitude: lng }}
 					className='aspect-banner'
-					setLocation={(location) => {
-						lastForwardResultRef.current = null;
-						setValue('latitude', location.latitude, { shouldDirty: true });
-						setValue('longitude', location.longitude, { shouldDirty: true });
-						setValue('location_source', 'manual_drag', { shouldDirty: true });
-						setValue('is_location_confirmed', false, { shouldDirty: true });
-					}}
+					setLocation={(location) =>
+						applyCoordinate(
+							location.latitude,
+							location.longitude,
+							'manual_drag'
+						)
+					}
 				/>
+
+				<div className='grid gap-4 mt-3 sm:grid-cols-2'>
+					<div>
+						<Label htmlFor='latitude'>Latitude</Label>
+						<Input
+							type='number'
+							step='any'
+							placeholder='Contoh: -6.2185'
+							value={lat ?? ''}
+							onChange={(e) => {
+								const v = e.target.value === '' ? undefined : Number(e.target.value);
+								setValue('latitude', v, {
+									shouldDirty: true,
+									shouldValidate: true,
+								});
+								setValue('location_source', 'manual_drag', { shouldDirty: true });
+								setValue('is_location_confirmed', false, { shouldDirty: true });
+							}}
+						/>
+						{errors.latitude && (
+							<span className='text-red-500'>{errors.latitude.message}</span>
+						)}
+					</div>
+					<div>
+						<Label htmlFor='longitude'>Longitude</Label>
+						<Input
+							type='number'
+							step='any'
+							placeholder='Contoh: 106.8283'
+							value={lng ?? ''}
+							onChange={(e) => {
+								const v = e.target.value === '' ? undefined : Number(e.target.value);
+								setValue('longitude', v, {
+									shouldDirty: true,
+									shouldValidate: true,
+								});
+								setValue('location_source', 'manual_drag', { shouldDirty: true });
+								setValue('is_location_confirmed', false, { shouldDirty: true });
+							}}
+						/>
+						{errors.longitude && (
+							<span className='text-red-500'>{errors.longitude.message}</span>
+						)}
+					</div>
+				</div>
+
+				<div className='mt-2'>
+					<Button variant='outline' type='button' onClick={handleUseMyLocation}>
+						Gunakan lokasi saya
+					</Button>
+				</div>
 
 				<div className='mt-3 rounded-md border p-3 text-sm space-y-1'>
 					{validating && (
-						<p className='text-gray-500'>Memeriksa konsistensi alamat di peta...</p>
+						<p className='text-gray-500'>Memeriksa alamat di peta...</p>
 					)}
 					{!validating && validation && validation.displayAddress && (
 						<>
@@ -624,43 +457,34 @@ const AddressForm = ({ initial, action, label }) => {
 								{validation.displayAddress}
 							</p>
 							{validation.provinceMatch === false && (
-								<p className='text-red-600'>
-									Provinsi tidak cocok: peta menunjukkan "{validation.osmProvince}",
-									Anda memilih "{provinceName}". Submit akan diblokir sampai
-									diperbaiki.
+								<p className='text-amber-600'>
+									Provinsi mungkin tidak cocok: peta menunjukkan "
+									{validation.osmProvince || '-'}", Anda memilih "{provinceName}".
+									Periksa kembali titik peta.
 								</p>
 							)}
-							{validation.provinceMatch !== false && validation.cityMatch === false && (
+							{validation.cityMatch === false && (
 								<p className='text-amber-600'>
 									Kota/kabupaten mungkin tidak cocok: peta menunjukkan "
-									{validation.osmCity || '-'}", Anda memilih "{cityName}". Periksa
-									kembali sebelum menyimpan.
+									{validation.osmCity || '-'}", Anda memilih "{cityName}".
 								</p>
 							)}
-							{validation.provinceMatch !== false &&
-								validation.cityMatch !== false &&
-								validation.districtMatch === false && (
-									<p className='text-amber-600'>
-										Kecamatan mungkin tidak cocok: peta menunjukkan "
-										{validation.osmDistrict || '-'}", Anda memilih "{districtName}".
-									</p>
-								)}
-							{validation.osmPostcode &&
-								validation.zipcodeMatch === false && (
-									<p className='text-blue-600 flex items-center gap-2 flex-wrap'>
-										Peta menyarankan kode pos {validation.osmPostcode}.
-										<button
-											type='button'
-											className='underline'
-											onClick={() =>
-												setValue('zipcode', validation.osmPostcode, {
-													shouldDirty: true,
-												})
-											}>
-											Gunakan
-										</button>
-									</p>
-								)}
+							{validation.osmPostcode && validation.zipcodeMatch === false && (
+								<p className='text-blue-600 flex items-center gap-2 flex-wrap'>
+									Peta menyarankan kode pos {validation.osmPostcode}.
+									<button
+										type='button'
+										className='underline'
+										onClick={() =>
+											setValue('zipcode', validation.osmPostcode, {
+												shouldDirty: true,
+												shouldValidate: true,
+											})
+										}>
+										Gunakan
+									</button>
+								</p>
+							)}
 						</>
 					)}
 					{!validating && validation && !validation.displayAddress && (
@@ -668,14 +492,6 @@ const AddressForm = ({ initial, action, label }) => {
 							Tidak dapat memverifikasi alamat dari peta saat ini.
 						</p>
 					)}
-					{distanceFromDistrictKm != null &&
-						distanceFromDistrictKm > MAX_DISTANCE_FROM_DISTRICT_KM && (
-							<p className='text-amber-600'>
-								Marker berjarak {distanceFromDistrictKm.toFixed(1)} km dari
-								pusat kecamatan "{districtName}". Pastikan ini lokasi yang
-								benar.
-							</p>
-						)}
 				</div>
 			</div>
 
@@ -704,9 +520,6 @@ const AddressForm = ({ initial, action, label }) => {
 
 			<div className='flex items-center gap-2 col-span-full'>
 				<Button disabled={!watch('is_location_confirmed')}>{label}</Button>
-				<Button variant='outline' type='button' onClick={handleUseMyLocation}>
-					Gunakan lokasi saya
-				</Button>
 			</div>
 		</form>
 	);

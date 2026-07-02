@@ -97,11 +97,12 @@ module.exports = (sequelize, DataTypes) => {
 				},
 			},
 			district_id: {
-				allowNull: false,
+				allowNull: true,
 				type: DataTypes.STRING,
-				validate: {
-					notEmpty: true,
-				},
+			},
+			district_name: {
+				allowNull: true,
+				type: DataTypes.STRING,
 			},
 			zipcode: {
 				allowNull: false,

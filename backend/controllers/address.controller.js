@@ -44,7 +44,9 @@ const AddressController = {
 	async index(req, res, next) {
 		try {
 			const { search, page, limit, status } = req.query;
-			const address = Address.scope({ method: ['authorize', req.user] });
+			const address = Address.scope({
+				method: ['authorize', req.user, [ROLES.ADMIN]],
+			});
 
 			const filters = {};
 			if (status) filters.is_default = status === 'default';
@@ -215,7 +217,7 @@ const AddressController = {
 			if (!id) throw new ApiError(400, 'ID is required');
 
 			const address = await Address.scope({
-				method: ['authorize', req.user],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
 				include: ['user', 'province', 'city', 'district'],
@@ -237,7 +239,7 @@ const AddressController = {
 			if (!id) throw new ApiError(400, 'ID is required');
 
 			const address = await Address.scope({
-				method: ['authorize', req.user],
+				method: ['authorize', req.user, [ROLES.ADMIN]],
 			}).findOne({
 				where: { id },
 				transaction: t,
