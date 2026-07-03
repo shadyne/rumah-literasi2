@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { Hint } from '@/components/ui/hint';
+import { cn } from '@/libs/utils';
 import { DEFAULT_LOCATION } from '@/libs/constant';
-import { useConfirm } from '@/hooks/use-confirm';
 import { useLocation } from '@/hooks/use-location';
 import { reverseGeocode } from '@/libs/geocoder';
 
@@ -86,10 +86,11 @@ const probeAdmin = (addr, displayName, fields, targetName) => {
 };
 
 const AddressForm = ({ initial, action, label }) => {
-	const { confirm } = useConfirm();
 	const [validation, setValidation] = React.useState(null);
 	const [validating, setValidating] = React.useState(false);
 	const [submitError, setSubmitError] = React.useState('');
+	// Toggle lokasi otomatis (GPS). Default OFF = user isi manual / geser peta.
+	const [useGps, setUseGps] = React.useState(false);
 	const {
 		province,
 		provinces,
@@ -194,33 +195,35 @@ const AddressForm = ({ initial, action, label }) => {
 		setValue('is_location_confirmed', false, { shouldDirty: true });
 	};
 
-	const handleUseMyLocation = async () => {
-		confirm({
-			title: 'Gunakan lokasi saya',
-			description: 'Apakah Anda yakin ingin menggunakan lokasi Anda?',
-		})
-			.then(async () => {
-				if (!('geolocation' in navigator)) {
-					alert('Browser Anda tidak mendukung geolokasi.');
-					return;
-				}
-				navigator.geolocation.getCurrentPosition(
-					(position) => {
-						applyCoordinate(
-							position.coords.latitude,
-							position.coords.longitude,
-							'user_location'
-						);
-					},
-					() => {
-						alert(
-							'Tidak dapat mengambil lokasi Anda. Silakan periksa izin browser.'
-						);
-					},
-					{ enableHighAccuracy: true }
+	// Ambil koordinat dari GPS perangkat. Dipakai saat toggle GPS dinyalakan
+	// dan saat tombol "Perbarui Lokasi" ditekan.
+	const fetchGps = () => {
+		if (!('geolocation' in navigator)) {
+			alert('Browser Anda tidak mendukung geolokasi.');
+			setUseGps(false);
+			return;
+		}
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				applyCoordinate(
+					position.coords.latitude,
+					position.coords.longitude,
+					'user_location'
 				);
-			})
-			.catch(() => {});
+			},
+			() => {
+				alert(
+					'Tidak dapat mengambil lokasi Anda. Periksa izin lokasi browser, atau matikan GPS untuk mengisi koordinat manual.'
+				);
+				setUseGps(false);
+			},
+			{ enableHighAccuracy: true }
+		);
+	};
+
+	const handleToggleGps = (next) => {
+		setUseGps(next);
+		if (next) fetchGps();
 	};
 
 	const guardedSubmit = (values) => {
@@ -378,20 +381,45 @@ const AddressForm = ({ initial, action, label }) => {
 			</div>
 
 			<div className='col-span-full'>
-				<Label htmlFor='location'>Titik Lokasi di Peta</Label>
+				<div className='flex items-center justify-between gap-3'>
+					<Label htmlFor='location'>Titik Lokasi</Label>
+					<label className='flex items-center gap-2 text-sm cursor-pointer select-none'>
+						<span className='text-zinc-600'>Lokasi otomatis (GPS)</span>
+						<button
+							type='button'
+							role='switch'
+							aria-checked={useGps}
+							onClick={() => handleToggleGps(!useGps)}
+							className={cn(
+								'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+								useGps ? 'bg-primary-500' : 'bg-zinc-300'
+							)}>
+							<span
+								className={cn(
+									'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+									useGps ? 'translate-x-6' : 'translate-x-1'
+								)}
+							/>
+						</button>
+					</label>
+				</div>
 				<Hint className='mb-2'>
-					Geser penanda di peta, klik "Gunakan lokasi saya", atau isi koordinat
-					(latitude & longitude) secara manual di bawah.
+					{useGps
+						? 'GPS aktif: koordinat diambil otomatis dari perangkat Anda. Tekan "Perbarui Lokasi" untuk mengambil ulang.'
+						: 'Klik pada peta untuk menaruh penanda, atau isi koordinat (latitude & longitude) secara manual di bawah.'}
 				</Hint>
 				<Map
 					location={{ latitude: lat, longitude: lng }}
 					className='aspect-banner'
-					setLocation={(location) =>
-						applyCoordinate(
-							location.latitude,
-							location.longitude,
-							'manual_drag'
-						)
+					setLocation={
+						useGps
+							? undefined
+							: (location) =>
+									applyCoordinate(
+										location.latitude,
+										location.longitude,
+										'manual_drag'
+									)
 					}
 				/>
 
@@ -401,9 +429,12 @@ const AddressForm = ({ initial, action, label }) => {
 						<Input
 							type='number'
 							step='any'
+							readOnly={useGps}
+							className={cn(useGps && 'bg-zinc-100 text-zinc-500')}
 							placeholder='Contoh: -6.2185'
 							value={lat ?? ''}
 							onChange={(e) => {
+								if (useGps) return;
 								const v = e.target.value === '' ? undefined : Number(e.target.value);
 								setValue('latitude', v, {
 									shouldDirty: true,
@@ -422,9 +453,12 @@ const AddressForm = ({ initial, action, label }) => {
 						<Input
 							type='number'
 							step='any'
+							readOnly={useGps}
+							className={cn(useGps && 'bg-zinc-100 text-zinc-500')}
 							placeholder='Contoh: 106.8283'
 							value={lng ?? ''}
 							onChange={(e) => {
+								if (useGps) return;
 								const v = e.target.value === '' ? undefined : Number(e.target.value);
 								setValue('longitude', v, {
 									shouldDirty: true,
@@ -440,11 +474,13 @@ const AddressForm = ({ initial, action, label }) => {
 					</div>
 				</div>
 
-				<div className='mt-2'>
-					<Button variant='outline' type='button' onClick={handleUseMyLocation}>
-						Gunakan lokasi saya
-					</Button>
-				</div>
+				{useGps && (
+					<div className='mt-2'>
+						<Button variant='outline' type='button' onClick={fetchGps}>
+							Perbarui Lokasi
+						</Button>
+					</div>
+				)}
 
 				<div className='mt-3 rounded-md border p-3 text-sm space-y-1'>
 					{validating && (
