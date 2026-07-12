@@ -47,7 +47,8 @@ const EditBookDonationMain = () => {
 			<Heading>
 				<HeadingTitle>Edit Donasi Buku</HeadingTitle>
 				<HeadingDescription>
-					Perbarui status donasi buku ini.
+					Perbarui informasi donasi buku ini selama pembayaran belum
+					dilakukan.
 				</HeadingDescription>
 			</Heading>
 

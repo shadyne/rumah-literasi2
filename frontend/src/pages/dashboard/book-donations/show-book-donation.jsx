@@ -396,7 +396,7 @@ const ShowBookDonation = () => {
 							</Link>
 						)}
 
-						{allowed && (
+						{isOwner && result.data.status === PAYMENT_STATUS.PENDING && (
 							<Link
 								to={'/dashboard/book-donations/' + result.data.id + '/edit'}>
 								<Button variant='outline'>Edit Donasi</Button>

@@ -172,16 +172,12 @@ const AddressController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			const address = await Address.scope({
-				method: ['authorize', req.user],
-			}).findOne({
-				where: { id },
+			const address = await Address.findOne({
+				where: { id, user_id: req.user.id },
 			});
 
 			if (!address) throw new ApiError(404, 'Address not found');
-			await Address.scope({
-				method: ['authorize', req.user],
-			}).update(
+			await Address.update(
 				{ is_default: false },
 				{
 					where: {
@@ -238,10 +234,8 @@ const AddressController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			const address = await Address.scope({
-				method: ['authorize', req.user, [ROLES.ADMIN]],
-			}).findOne({
-				where: { id },
+			const address = await Address.findOne({
+				where: { id, user_id: req.user.id },
 				transaction: t,
 			});
 

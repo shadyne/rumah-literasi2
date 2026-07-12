@@ -23,10 +23,12 @@ router.post(
 	upload.single('payment_proof'),
 	BookDonationController.pay
 );
+// Hanya pemilik yang boleh mengedit, dan hanya selama status PENDING
+// (belum dibayar); dicek di controller.
+router.put('/:id', guestOnly, BookDonationController.update);
 
 const admin = authorize([ROLES.ADMIN]);
 router.post('/:id/verify', admin, BookDonationController.verify);
-router.put('/:id', admin, BookDonationController.update);
 
 // User boleh menghapus donasinya sendiri selama status PENDING; controller
 // membatasi kepemilikan (scope) & memastikan draft Biteship ikut dibatalkan.

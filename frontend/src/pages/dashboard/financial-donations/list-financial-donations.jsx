@@ -61,6 +61,13 @@ const ListDonations = () => {
 
 	const { result, pagination, empty } = useResultState(error, loading, data);
 
+	// Donasi berstatus menunggu pembayaran tidak ditampilkan untuk
+	// Admin/Superadmin, jadi opsi filternya ikut disembunyikan.
+	const isStaff = user?.role === 'Admin' || user?.role === 'Superadmin';
+	const statusOptions = Object.values(PAYMENT_STATUS).filter(
+		(s) => !isStaff || s !== PAYMENT_STATUS.PENDING
+	);
+
 	const handleDelete = async (id) => {
 		confirm({
 			title: 'Konfirmasi Tindakan',
@@ -108,7 +115,7 @@ const ListDonations = () => {
 						className='max-w-40'
 						onChange={(e) => setStatus(e.target.value)}>
 						<option value=''>Pilih status</option>
-						{Object.values(PAYMENT_STATUS).map((status) => (
+						{statusOptions.map((status) => (
 							<option key={status} value={status}>
 								{PAYMENT_STATUS_LABELS[status] || status}
 							</option>

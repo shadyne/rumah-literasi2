@@ -8,27 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Hint } from '@/components/ui/hint';
-import { PAYMENT_STATUS } from '@/libs/constant';
-import { Select } from '@/components/ui/select';
-
-const STATUS_LIST = Object.values(PAYMENT_STATUS);
-
-// const FinancialDonationSchema = z.object({
-// 	amount: z.coerce.number().min(1),
-// 	notes: z.string().min(3),
-// });
 
 const FinancialDonationSchema = z.object({
 	amount: z.coerce.number().min(1.000, 'Jumlah donasi harus minimal Rp 1.000'),
 	notes: z.string().optional(),
 });
-
-const EditSchema = FinancialDonationSchema.merge(
-	z.object({
-		status: z.enum(STATUS_LIST),
-		acceptance_notes: z.string().optional(),
-	})
-);
 
 const FinancialDonationForm = ({ initial, action, label }) => {
 	const {
@@ -36,11 +20,13 @@ const FinancialDonationForm = ({ initial, action, label }) => {
 		handleSubmit,
 		formState: { errors },
 	} = useForm({
-		resolver: zodResolver(initial ? EditSchema : FinancialDonationSchema),
-		defaultValues: initial || {
-			amount: '',
-			notes: '',
-		},
+		resolver: zodResolver(FinancialDonationSchema),
+		defaultValues: initial
+			? { amount: initial.amount, notes: initial.notes || '' }
+			: {
+					amount: '',
+					notes: '',
+				},
 	});
 
 	return (
@@ -71,40 +57,6 @@ const FinancialDonationForm = ({ initial, action, label }) => {
 					<span className='text-red-500'>{errors.notes.message}</span>
 				)}
 			</div>
-
-			{initial && (
-				<React.Fragment>
-					<div>
-						<Label htmlFor='status'>Status</Label>
-						<Select {...register('status')}>
-							{STATUS_LIST.map((status) => (
-								<option key={status} value={status}>
-									{status}
-								</option>
-							))}
-						</Select>
-						<Hint>Status proses donasi finansial.</Hint>
-						{errors.status && (
-							<span className='text-red-500'>{errors.status.message}</span>
-						)}
-					</div>
-
-					<div className='col-span-full'>
-						<Label htmlFor='acceptance-notes'>Catatan Penerimaan</Label>
-						<Textarea
-							type='text'
-							placeholder='Masukkan catatan penerimaan'
-							{...register('acceptance_notes')}
-						/>
-						<Hint>Catatan mengenai penerimaan donasi ini.</Hint>
-						{errors.acceptance_notes && (
-							<span className='text-red-500'>
-								{errors.acceptance_notes.message}
-							</span>
-						)}
-					</div>
-				</React.Fragment>
-			)}
 
 			<div className='col-span-full'>
 				<Button>{label}</Button>

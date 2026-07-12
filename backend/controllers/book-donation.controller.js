@@ -1,4 +1,4 @@
-const { ValidationError } = require('sequelize');
+const { ValidationError, Op } = require('sequelize');
 
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
@@ -23,6 +23,13 @@ const BookDonationController = {
 
 			const filters = {};
 			if (status) filters.status = status;
+
+			// Donasi yang masih menunggu pembayaran (PENDING) tidak perlu
+			// muncul di daftar milik Admin/Superadmin.
+			const isStaff = [ROLES.ADMIN, ROLES.SUPERADMIN].includes(req.user.role);
+			if (isStaff && (!status || status === PAYMENT_STATUS.PENDING)) {
+				filters.status = { [Op.ne]: PAYMENT_STATUS.PENDING };
+			}
 
 			const paginate = searchService.paginate({ page, limit });
 			const result = await searchService.search(
@@ -125,25 +132,9 @@ const BookDonationController = {
 				{ transaction: t }
 			);
 
-			await LogService.createLog(
-				'book_donation_created',
-				req.user.id,
-				'book_donation',
-				donation.id,
-				`Book donation #${donation.id} created by ${req.user.name} via ${method}`,
-				{
-					user_id: req.user.id,
-					donation_id: donation.id,
-					method,
-					order_id: donation.order_id,
-					shipping_fee: donation.shipping_fee,
-					status: donation.status,
-					courier_code: courier.courier_code,
-					courier_service_code: courier.courier_service_code,
-				},
-				req
-			);
-
+			// Tidak dicatat ke log sistem: donasi masih menunggu pembayaran,
+			// belum relevan untuk Admin/Superadmin. Log dimulai sejak upload
+			// bukti pembayaran (pay).
 			await t.commit();
 
 			return res.json(
@@ -426,38 +417,37 @@ const BookDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			const donation = await BookDonation.scope({
-				method: ['authorize', req.user, [ROLES.ADMIN]],
-			}).findOne({ where: { id } });
+			// Hanya pemilik donasi yang boleh mengedit (Admin/Superadmin tidak).
+			const donation = await BookDonation.findOne({
+				where: { id, user_id: req.user.id },
+			});
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 
-			// Whitelist: cegah penimpaan field revenue/order (order_id,
-			// shipping_fee, tracking_id, verified_by, dll) lewat body mentah.
-			const ALLOWED_UPDATE_FIELDS = ['status', 'acceptance_notes'];
+			// Donasi yang sudah dibayar (bukan PENDING) terkunci dari edit.
+			if (donation.status !== PAYMENT_STATUS.PENDING) {
+				throw new ApiError(
+					400,
+					'Donation can only be edited while awaiting payment'
+				);
+			}
+
+			// Whitelist: hanya field yang tidak mempengaruhi draft order &
+			// ongkir Biteship (status/order_id/shipping_fee/dimensi dilarang).
+			const ALLOWED_UPDATE_FIELDS = [
+				'estimated_value',
+				'pickup_date',
+				'pickup_time_slot',
+				'pickup_note',
+			];
 			const payload = {};
 			for (const field of ALLOWED_UPDATE_FIELDS) {
 				if (req.body[field] !== undefined) payload[field] = req.body[field];
 			}
 
-			const oldStatus = donation.status;
+			// Edit hanya mungkin saat status PENDING — tidak dicatat ke log
+			// sistem (belum relevan untuk Admin/Superadmin).
 			await donation.update(payload);
-
-			if (payload.status && payload.status !== oldStatus) {
-				await LogService.createLog(
-					'book_donation_status_updated',
-					req.user.id,
-					'book_donation',
-					donation.id,
-					`${req.user.name} updated status from ${oldStatus} to ${donation.status}`,
-					{
-						donation_id: donation.id,
-						old_status: oldStatus,
-						new_status: donation.status,
-					},
-					req
-				);
-			}
 
 			return res.json(
 				new ApiResponse('Book donation updated successfully', donation)
@@ -488,8 +478,6 @@ const BookDonationController = {
 				);
 			}
 
-			const deletedData = donation.toJSON();
-
 			if (donation.order_id) {
 				try {
 					await DeliveryController.cancel(donation);
@@ -498,17 +486,9 @@ const BookDonationController = {
 				}
 			}
 
+			// Hanya donasi PENDING yang bisa dihapus — tidak dicatat ke log
+			// sistem (belum relevan untuk Admin/Superadmin).
 			await donation.destroy();
-
-			await LogService.createLog(
-				'book_donation_deleted',
-				req.user.id,
-				'book_donation',
-				deletedData.id,
-				`${req.user.name} deleted book donation #${deletedData.id}`,
-				{ donation_id: deletedData.id, deleted_by: req.user.id },
-				req
-			);
 
 			return res.json(
 				new ApiResponse('Book donation deleted successfully', donation)

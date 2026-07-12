@@ -175,8 +175,6 @@ const Router = () => {
 						<Route element={<AuthorizeLayout allowed={[ROLES.DONATUR]} />}>
 							<Route path='create' element={<AddDonation />} />
 							<Route path=':id/pay' element={<PayFinancialDonation />} />
-						</Route>
-						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
 							<Route path=':id/edit' element={<EditDonation />} />
 						</Route>
 					</Route>
@@ -195,9 +193,6 @@ const Router = () => {
 							<Route path='create/append' element={<AppendBookDonation />} />
 							<Route path='create/:id/edit' element={<UpdateBookDonation />} />
 							<Route path=':id/pay' element={<PayBookDonation />} />
-						</Route>
-
-						<Route element={<AuthorizeLayout allowed={[ROLES.ADMIN]} />}>
 							<Route path=':id/edit' element={<EditBookDonation />} />
 						</Route>
 					</Route>

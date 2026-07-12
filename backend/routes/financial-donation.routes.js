@@ -22,10 +22,10 @@ router.post(
 	upload.single('payment_proof'),
 	FinancialDonationController.pay
 );
+router.put('/:id', guestOnly, FinancialDonationController.update);
 
 const admin = authorize([ROLES.ADMIN]);
 router.post('/:id/verify', admin, FinancialDonationController.verify);
-router.put('/:id', admin, FinancialDonationController.update);
 router.delete('/:id', admin, FinancialDonationController.destroy);
 
 module.exports = router;

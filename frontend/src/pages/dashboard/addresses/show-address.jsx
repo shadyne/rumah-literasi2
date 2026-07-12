@@ -20,17 +20,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Map } from '@/components/map';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/use-auth';
 
 const ShowAddress = () => {
 	const { id } = useParams();
 	const { confirm } = useConfirm();
 	const { mutate } = useSWRConfig();
+	const { user, loading } = useAuth();
 
 	const {
 		error,
 		data: result,
 		isLoading: fetching,
 	} = useSWR('/addresses/' + id);
+
+	const isOwner = !loading && user?.id === result?.data?.user_id;
 
 	const handleDefault = async (id) => {
 		confirm({
@@ -168,7 +172,7 @@ const ShowAddress = () => {
 								</Button>
 							</Link>
 
-							{!result.data.is_default && (
+							{isOwner && !result.data.is_default && (
 								<Button
 									variant='outline'
 									onClick={() => {
@@ -179,9 +183,11 @@ const ShowAddress = () => {
 								</Button>
 							)}
 
-							<Link to={'/dashboard/addresses/' + result.data.id + '/edit'}>
-								<Button>Edit Alamat</Button>
-							</Link>
+							{isOwner && (
+								<Link to={'/dashboard/addresses/' + result.data.id + '/edit'}>
+									<Button>Edit Alamat</Button>
+								</Link>
+							)}
 						</div>
 					</div>
 				</div>

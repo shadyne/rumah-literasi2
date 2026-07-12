@@ -105,7 +105,7 @@ const ShowDonation = () => {
 								</Link>
 							)}
 
-							{allowed && (
+							{isOwner && result.data.status === PAYMENT_STATUS.PENDING && (
 								<Link
 									to={
 										'/dashboard/financial-donations/' + result.data.id + '/edit'

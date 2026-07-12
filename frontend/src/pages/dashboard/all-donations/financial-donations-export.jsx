@@ -116,7 +116,9 @@ const FinancialDonationsExport = () => {
 						className='max-w-44'
 						onChange={(e) => setStatus(e.target.value)}>
 						<option value=''>Semua status</option>
-						{Object.values(PAYMENT_STATUS).map((s) => (
+						{Object.values(PAYMENT_STATUS)
+							.filter((s) => s !== PAYMENT_STATUS.PENDING)
+							.map((s) => (
 							<option key={s} value={s}>
 								{s}
 							</option>

@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { currency } from '@/libs/utils';
-import { PAYMENT_STATUS } from '@/libs/constant';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,13 +13,12 @@ import { Map } from '@/components/map';
 import { DonationItem } from '@/components/book-donations/donation-item-card';
 import { HeadingSubtitle } from '@/components/ui/heading';
 import { Hint } from '@/components/ui/hint';
-import { Select } from '@/components/ui/select';
-
-const STATUS_LIST = Object.values(PAYMENT_STATUS);
 
 const BookDonationSchema = z.object({
-	status: z.enum(STATUS_LIST),
-	acceptance_notes: z.string().optional(),
+	estimated_value: z.coerce
+		.number()
+		.min(0, 'Perkiraan nilai tidak boleh negatif'),
+	pickup_note: z.string().optional(),
 });
 
 const displayWeight = (weight) => {
@@ -35,7 +33,10 @@ const BookDonationForm = ({ initial, action, label }) => {
 		formState: { errors },
 	} = useForm({
 		resolver: zodResolver(BookDonationSchema),
-		defaultValues: initial,
+		defaultValues: {
+			estimated_value: initial.estimated_value,
+			pickup_note: initial.pickup_note || '',
+		},
 	});
 
 	return (
@@ -96,10 +97,16 @@ const BookDonationForm = ({ initial, action, label }) => {
 				<div>
 					<Label htmlFor='estimated_value'>Perkiraan Nilai (Rp)</Label>
 					<Input
-						disabled
 						type='text'
-						defaultValue={currency(initial.estimated_value)}
+						inputMode='numeric'
+						placeholder='Masukkan perkiraan nilai donasi'
+						{...register('estimated_value')}
 					/>
+					{errors.estimated_value && (
+						<span className='text-red-500'>
+							{errors.estimated_value.message}
+						</span>
+					)}
 				</div>
 
 				<div>
@@ -212,37 +219,24 @@ const BookDonationForm = ({ initial, action, label }) => {
 				</div>
 			</div>
 
-			<HeadingSubtitle>Manajemen Status</HeadingSubtitle>
+			{initial.method === 'pickup' && (
+				<React.Fragment>
+					<HeadingSubtitle>Catatan Penjemputan</HeadingSubtitle>
 
-			<div>
-				<Label htmlFor='status'>Perbarui Status</Label>
-				<Select {...register('status')}>
-					{STATUS_LIST.map((status) => (
-						<option key={status} value={status}>
-							{status}
-						</option>
-					))}
-				</Select>
-				<Hint>Status proses donasi buku.</Hint>
-				{errors.status && (
-					<span className='text-red-500'>{errors.status.message}</span>
-				)}
-			</div>
-
-			<div className='col-span-full'>
-				<Label htmlFor='acceptance-notes'>Catatan Penerimaan</Label>
-				<Textarea
-					type='text'
-					placeholder='Masukkan catatan penerimaan'
-					{...register('acceptance_notes')}
-				/>
-				<Hint>Catatan mengenai penerimaan donasi ini.</Hint>
-				{errors.acceptance_notes && (
-					<span className='text-red-500'>
-						{errors.acceptance_notes.message}
-					</span>
-				)}
-			</div>
+					<div className='col-span-full'>
+						<Label htmlFor='pickup_note'>Catatan untuk Kurir</Label>
+						<Textarea
+							type='text'
+							placeholder='Masukkan catatan penjemputan'
+							{...register('pickup_note')}
+						/>
+						<Hint>Catatan tambahan untuk kurir saat penjemputan.</Hint>
+						{errors.pickup_note && (
+							<span className='text-red-500'>{errors.pickup_note.message}</span>
+						)}
+					</div>
+				</React.Fragment>
+			)}
 
 			<div className='col-span-full'>
 				<Button type='submit'>{label}</Button>
