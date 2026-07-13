@@ -120,13 +120,17 @@ const ShowAddress = () => {
 						<Input
 							disabled
 							type='text'
-							defaultValue={result.data.province.name}
+							defaultValue={result.data.province?.name || '—'}
 						/>
 					</div>
 
 					<div>
 						<Label htmlFor='city'>Kota</Label>
-						<Input disabled type='text' defaultValue={result.data.city.name} />
+						<Input
+							disabled
+							type='text'
+							defaultValue={result.data.city?.name || '—'}
+						/>
 					</div>
 
 					<div>
@@ -134,7 +138,7 @@ const ShowAddress = () => {
 						<Input
 							disabled
 							type='text'
-							defaultValue={result.data.district.name}
+							defaultValue={result.data.district?.name || '—'}
 						/>
 					</div>
 
