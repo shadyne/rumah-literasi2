@@ -11,6 +11,11 @@ import {
 	useMapEvents,
 } from 'react-leaflet';
 import { cn } from '@/libs/utils';
+import { DEFAULT_LOCATION } from '@/libs/constant';
+
+const isValidCoordinate = (value) =>
+	value !== null && value !== undefined && value !== '' &&
+	Number.isFinite(Number(value));
 
 const MapEvent = ({ handleClick }) => {
 	useMapEvents({
@@ -41,8 +46,16 @@ export const Map = ({ location, setLocation = () => {}, className }) => {
 		});
 	};
 
-	const lat = location?.latitude;
-	const lng = location?.longitude;
+	const hasLocation =
+		isValidCoordinate(location?.latitude) &&
+		isValidCoordinate(location?.longitude);
+
+	const lat = hasLocation
+		? Number(location.latitude)
+		: DEFAULT_LOCATION.latitude;
+	const lng = hasLocation
+		? Number(location.longitude)
+		: DEFAULT_LOCATION.longitude;
 
 	return (
 		<MapContainer
@@ -54,8 +67,8 @@ export const Map = ({ location, setLocation = () => {}, className }) => {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 			/>
-			<ChangeView lat={lat} lng={lng} />
-			<Marker position={[lat, lng]} />
+			{hasLocation && <ChangeView lat={lat} lng={lng} />}
+			{hasLocation && <Marker position={[lat, lng]} />}
 			<MapEvent handleClick={handleClick} />
 		</MapContainer>
 	);
