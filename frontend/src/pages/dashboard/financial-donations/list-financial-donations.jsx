@@ -177,14 +177,14 @@ const ListDonations = () => {
 											</button>
 										</Link>
 
-										{(user?.role === 'Admin' ||
-											user?.role === 'Superadmin') && (
-											<button
-												onClick={() => handleDelete(donation.id)}
-												className='bg-transparent hover:text-red-500'>
-												Hapus
-											</button>
-										)}
+										{user?.id === donation.user_id &&
+											donation.status === PAYMENT_STATUS.PENDING && (
+												<button
+													onClick={() => handleDelete(donation.id)}
+													className='bg-transparent hover:text-red-500'>
+													Hapus
+												</button>
+											)}
 									</div>
 								</TableCell>
 							</TableRow>

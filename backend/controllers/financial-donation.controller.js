@@ -250,10 +250,9 @@ const FinancialDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			const financialDonation = await FinancialDonation.scope({
-				method: ['authorize', req.user, [ROLES.ADMIN]],
-			}).findOne({
-				where: { id },
+			// Hanya pemilik donasi yang boleh menghapus.
+			const financialDonation = await FinancialDonation.findOne({
+				where: { id, user_id: req.user.id },
 			});
 
 			if (!financialDonation) {

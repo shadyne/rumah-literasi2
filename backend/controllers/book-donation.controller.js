@@ -462,10 +462,9 @@ const BookDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			const donation = await BookDonation.scope({
-				method: ['authorize', req.user, [ROLES.ADMIN]],
-			}).findOne({
-				where: { id },
+			// Hanya pemilik donasi yang boleh menghapus.
+			const donation = await BookDonation.findOne({
+				where: { id, user_id: req.user.id },
 				include: ['user', 'address', 'book_donation_items'],
 			});
 

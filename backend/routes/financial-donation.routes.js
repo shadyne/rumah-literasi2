@@ -23,9 +23,11 @@ router.post(
 	FinancialDonationController.pay
 );
 router.put('/:id', guestOnly, FinancialDonationController.update);
+// Hanya pemilik yang boleh menghapus, dan hanya selama status PENDING
+// (menunggu pembayaran); dicek di controller.
+router.delete('/:id', guestOnly, FinancialDonationController.destroy);
 
 const admin = authorize([ROLES.ADMIN]);
 router.post('/:id/verify', admin, FinancialDonationController.verify);
-router.delete('/:id', admin, FinancialDonationController.destroy);
 
 module.exports = router;

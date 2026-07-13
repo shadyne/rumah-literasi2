@@ -30,12 +30,8 @@ router.put('/:id', guestOnly, BookDonationController.update);
 const admin = authorize([ROLES.ADMIN]);
 router.post('/:id/verify', admin, BookDonationController.verify);
 
-// User boleh menghapus donasinya sendiri selama status PENDING; controller
-// membatasi kepemilikan (scope) & memastikan draft Biteship ikut dibatalkan.
-router.delete(
-	'/:id',
-	authorize([ROLES.DONATUR, ROLES.ADMIN]),
-	BookDonationController.destroy
-);
+// Hanya pemilik yang boleh menghapus donasinya, dan hanya selama status
+// PENDING; controller memastikan draft Biteship ikut dibatalkan.
+router.delete('/:id', guestOnly, BookDonationController.destroy);
 
 module.exports = router;
