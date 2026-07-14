@@ -172,7 +172,7 @@ const Router = () => {
 							<Route index element={<ListDonations />} />
 							<Route path=':id' element={<ShowDonation />} />
 						</Route>
-						<Route element={<AuthorizeLayout allowed={[ROLES.DONATUR]} />}>
+						<Route element={<AuthorizeLayout strict allowed={[ROLES.DONATUR]} />}>
 							<Route path='create' element={<AddDonation />} />
 							<Route path=':id/pay' element={<PayFinancialDonation />} />
 							<Route path=':id/edit' element={<EditDonation />} />
@@ -188,7 +188,7 @@ const Router = () => {
 							<Route path=':id' element={<ShowBookDonation />} />
 						</Route>
 
-						<Route element={<AuthorizeLayout allowed={[ROLES.DONATUR]} />}>
+						<Route element={<AuthorizeLayout strict allowed={[ROLES.DONATUR]} />}>
 							<Route path='create' element={<CreateBookDonation />} />
 							<Route path='create/append' element={<AppendBookDonation />} />
 							<Route path='create/:id/edit' element={<UpdateBookDonation />} />
@@ -207,15 +207,19 @@ const Router = () => {
 
 					<Route path='profile' element={<ProfileDetail />} />
 
-					<Route
-						path='addresses'
-						element={
-							<AuthorizeLayout allowed={[ROLES.DONATUR, ROLES.ADMIN]} />
-						}>
-						<Route index element={<ListAddresses />} />
-						<Route path='create' element={<AddAddress />} />
-						<Route path=':id/edit' element={<EditAddress />} />
-						<Route path=':id' element={<ShowAddress />} />
+					<Route path='addresses'>
+						<Route
+							element={
+								<AuthorizeLayout allowed={[ROLES.DONATUR, ROLES.ADMIN]} />
+							}>
+							<Route index element={<ListAddresses />} />
+							<Route path=':id' element={<ShowAddress />} />
+						</Route>
+						<Route
+							element={<AuthorizeLayout strict allowed={[ROLES.DONATUR]} />}>
+							<Route path='create' element={<AddAddress />} />
+							<Route path=':id/edit' element={<EditAddress />} />
+						</Route>
 					</Route>
 
 					<Route

@@ -5,9 +5,9 @@ import { ROLES } from '@/libs/constant';
 
 const DEFAULT = [];
 
-const AuthorizeLayout = ({ allowed = DEFAULT }) => {
+const AuthorizeLayout = ({ allowed = DEFAULT, strict = false }) => {
 	const { user, loading } = useAuth();
-	const set = new Set([...allowed, ROLES.SUPERADMIN]);
+	const set = new Set(strict ? allowed : [...allowed, ROLES.SUPERADMIN]);
 	const authorized = user && set.has(user.role);
 
 	if (loading) {

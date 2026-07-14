@@ -29,6 +29,29 @@ const authorize =
 		}
 	};
 
+const authorizeStrict =
+	(roles = DEFAULT) =>
+	async (req, res, next) => {
+		try {
+			if (!req.user) {
+				return res.status(401).json({
+					message: 'You are not authorized to access this resource',
+				});
+			}
+
+			const check = new Set(roles);
+			if (!check.has(req.user.role)) {
+				return res.status(403).json({
+					message: 'You are not authorized to access this resource',
+				});
+			}
+
+			next();
+		} catch (error) {
+			next(error);
+		}
+	};
+
 /**
  * Scope for the authorize middleware
  * @param {*} user
@@ -50,4 +73,5 @@ const scope = {
 module.exports = {
 	scope,
 	authorize,
+	authorizeStrict,
 };

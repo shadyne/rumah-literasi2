@@ -20,8 +20,6 @@ const FinancialDonationController = {
 			const filters = {};
 			if (status) filters.status = status;
 
-			// Donasi yang masih menunggu pembayaran (PENDING) tidak perlu
-			// muncul di daftar milik Admin/Superadmin.
 			const isStaff = [ROLES.ADMIN, ROLES.SUPERADMIN].includes(req.user.role);
 			if (isStaff && (!status || status === PAYMENT_STATUS.PENDING)) {
 				filters.status = { [Op.ne]: PAYMENT_STATUS.PENDING };
@@ -55,9 +53,6 @@ const FinancialDonationController = {
 
 	async store(req, res, next) {
 		try {
-			// Tidak dicatat ke log sistem: donasi masih menunggu pembayaran,
-			// belum relevan untuk Admin/Superadmin. Log dimulai sejak upload
-			// bukti pembayaran (pay).
 			const financialDonation = await FinancialDonation.create({
 				amount: req.body.amount,
 				notes: req.body.notes || null,
@@ -81,9 +76,9 @@ const FinancialDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			const donation = await FinancialDonation.scope({
-				method: ['authorize', req.user],
-			}).findOne({ where: { id } });
+			const donation = await FinancialDonation.findOne({
+				where: { id, user_id: req.user.id },
+			});
 
 			if (!donation) throw new ApiError(404, 'Financial donation not found');
 			if (donation.status !== PAYMENT_STATUS.PENDING) {
@@ -198,6 +193,11 @@ const FinancialDonationController = {
 				throw new ApiError(404, 'Financial donation not found');
 			}
 
+			const isStaff = [ROLES.ADMIN, ROLES.SUPERADMIN].includes(req.user.role);
+			if (isStaff && financialDonation.status === PAYMENT_STATUS.PENDING) {
+				throw new ApiError(404, 'Financial donation not found');
+			}
+
 			return res.json(
 				new ApiResponse(
 					'Financial donation retrieved successfully',
@@ -228,8 +228,6 @@ const FinancialDonationController = {
 				);
 			}
 
-			// Edit hanya mungkin saat status PENDING — tidak dicatat ke log
-			// sistem (belum relevan untuk Admin/Superadmin).
 			await financialDonation.update({
 				amount: req.body.amount ?? financialDonation.amount,
 				notes: req.body.notes ?? financialDonation.notes,
@@ -250,25 +248,46 @@ const FinancialDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			// Hanya pemilik donasi yang boleh menghapus.
+			const isStaff = [ROLES.ADMIN, ROLES.SUPERADMIN].includes(req.user.role);
 			const financialDonation = await FinancialDonation.findOne({
-				where: { id, user_id: req.user.id },
+				where: isStaff ? { id } : { id, user_id: req.user.id },
 			});
 
 			if (!financialDonation) {
 				throw new ApiError(404, 'Financial donation not found');
 			}
 
-			const pending = financialDonation.status === PAYMENT_STATUS.PENDING;
-			if (!pending) {
+			if (isStaff) {
+				if (financialDonation.status !== PAYMENT_STATUS.FAILED) {
+					throw new ApiError(
+						400,
+						'Admin can only delete donations with failed status'
+					);
+				}
+			} else if (financialDonation.status !== PAYMENT_STATUS.PENDING) {
 				throw new ApiError(
 					400,
 					'Cannot delete donation unless the status is pending'
 				);
 			}
 
-			// Hanya donasi PENDING yang bisa dihapus — tidak dicatat ke log
-			// sistem (belum relevan untuk Admin/Superadmin).
+			if (isStaff) {
+				await LogService.createLog(
+					'Menghapus Donasi Finansial Gagal',
+					req.user.id,
+					'financial_donation',
+					financialDonation.id,
+					`${req.user.name} menghapus donasi gagal #${financialDonation.id}`,
+					{
+						donation_id: financialDonation.id,
+						amount: financialDonation.amount,
+						status: financialDonation.status,
+						deleted_by: req.user.id,
+					},
+					req
+				);
+			}
+
 			await financialDonation.destroy();
 
 			return res.json(

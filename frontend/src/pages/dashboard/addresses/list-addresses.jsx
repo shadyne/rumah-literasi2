@@ -30,9 +30,11 @@ import { Error } from '@/components/error';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarGroup } from '@/components/ui/avatar';
 import { Pagination } from '@/components/pagination';
+import { useAuth } from '@/hooks/use-auth';
 
 const ListAddresses = () => {
 	const { confirm } = useConfirm();
+	const { user } = useAuth();
 	const { page, limit, search, setSearch, debounced } = usePagination();
 
 	const {
@@ -115,9 +117,11 @@ const ListAddresses = () => {
 					placeholder='Cari nama, alamat...'
 					onChange={(e) => setSearch(e.target.value)}
 				/>
-				<Link to='/dashboard/addresses/create' className='flex-none'>
-					<Button>Buat Alamat</Button>
-				</Link>
+				{user?.role === 'Donatur' && (
+					<Link to='/dashboard/addresses/create' className='flex-none'>
+						<Button>Buat Alamat</Button>
+					</Link>
+				)}
 			</div>
 
 			<div className='w-full overflow-x-auto border rounded-xl border-zinc-200'>
@@ -142,7 +146,7 @@ const ListAddresses = () => {
 								<TableCell>
 									{address.is_default ? (
 										<Badge variant='primary'>Utama</Badge>
-									) : (
+									) : user?.id === address.user_id ? (
 										<Badge
 											variant='outline'
 											onClick={() => {
@@ -151,6 +155,8 @@ const ListAddresses = () => {
 											}}>
 											Bukan utama
 										</Badge>
+									) : (
+										<Badge variant='outline'>Bukan utama</Badge>
 									)}
 								</TableCell>
 								<TableCell>
@@ -164,11 +170,13 @@ const ListAddresses = () => {
 												Detail
 											</button>
 										</Link>
-										<button
-											onClick={() => handleDelete(address.id)}
-											className='bg-transparent hover:text-red-500'>
-											Hapus
-										</button>
+										{user?.id === address.user_id && (
+											<button
+												onClick={() => handleDelete(address.id)}
+												className='bg-transparent hover:text-red-500'>
+												Hapus
+											</button>
+										)}
 									</div>
 								</TableCell>
 							</TableRow>

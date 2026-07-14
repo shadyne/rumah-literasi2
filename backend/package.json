@@ -4,7 +4,8 @@
 	"description": "Mraen Mimpi Backend using Express and Sequelize",
 	"main": "api/index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"dev": "nodemon api/index.js",
 		"start": "node api/index.js",
 		"email:dev": "email dev --port=3002",
@@ -48,6 +49,8 @@
 		"react-dom": "^19.1.1",
 		"react-email": "^3.0.7",
 		"rimraf": "^6.1.2",
-		"sequelize-cli": "^6.6.3"
+		"sequelize-cli": "^6.6.3",
+		"supertest": "^7.2.2",
+		"vitest": "^4.1.10"
 	}
 }

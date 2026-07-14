@@ -1,4 +1,4 @@
-const { ValidationError, Op } = require('sequelize');
+const { Op } = require('sequelize');
 
 const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
@@ -24,8 +24,6 @@ const BookDonationController = {
 			const filters = {};
 			if (status) filters.status = status;
 
-			// Donasi yang masih menunggu pembayaran (PENDING) tidak perlu
-			// muncul di daftar milik Admin/Superadmin.
 			const isStaff = [ROLES.ADMIN, ROLES.SUPERADMIN].includes(req.user.role);
 			if (isStaff && (!status || status === PAYMENT_STATUS.PENDING)) {
 				filters.status = { [Op.ne]: PAYMENT_STATUS.PENDING };
@@ -132,9 +130,6 @@ const BookDonationController = {
 				{ transaction: t }
 			);
 
-			// Tidak dicatat ke log sistem: donasi masih menunggu pembayaran,
-			// belum relevan untuk Admin/Superadmin. Log dimulai sejak upload
-			// bukti pembayaran (pay).
 			await t.commit();
 
 			return res.json(
@@ -184,9 +179,9 @@ const BookDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			const donation = await BookDonation.scope({
-				method: ['authorize', req.user],
-			}).findOne({ where: { id } });
+			const donation = await BookDonation.findOne({
+				where: { id, user_id: req.user.id },
+			});
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 			if (donation.status !== PAYMENT_STATUS.PENDING) {
@@ -404,6 +399,11 @@ const BookDonationController = {
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 
+			const isStaff = [ROLES.ADMIN, ROLES.SUPERADMIN].includes(req.user.role);
+			if (isStaff && donation.status === PAYMENT_STATUS.PENDING) {
+				throw new ApiError(404, 'Book donation not found');
+			}
+
 			return res.json(
 				new ApiResponse('Book donation retrieved successfully', donation)
 			);
@@ -417,14 +417,12 @@ const BookDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			// Hanya pemilik donasi yang boleh mengedit (Admin/Superadmin tidak).
 			const donation = await BookDonation.findOne({
 				where: { id, user_id: req.user.id },
 			});
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 
-			// Donasi yang sudah dibayar (bukan PENDING) terkunci dari edit.
 			if (donation.status !== PAYMENT_STATUS.PENDING) {
 				throw new ApiError(
 					400,
@@ -432,8 +430,6 @@ const BookDonationController = {
 				);
 			}
 
-			// Whitelist: hanya field yang tidak mempengaruhi draft order &
-			// ongkir Biteship (status/order_id/shipping_fee/dimensi dilarang).
 			const ALLOWED_UPDATE_FIELDS = [
 				'estimated_value',
 				'pickup_date',
@@ -445,8 +441,6 @@ const BookDonationController = {
 				if (req.body[field] !== undefined) payload[field] = req.body[field];
 			}
 
-			// Edit hanya mungkin saat status PENDING — tidak dicatat ke log
-			// sistem (belum relevan untuk Admin/Superadmin).
 			await donation.update(payload);
 
 			return res.json(
@@ -462,15 +456,22 @@ const BookDonationController = {
 			const id = req.params.id;
 			if (!id) throw new ApiError(400, 'ID is required');
 
-			// Hanya pemilik donasi yang boleh menghapus.
+			const isStaff = [ROLES.ADMIN, ROLES.SUPERADMIN].includes(req.user.role);
 			const donation = await BookDonation.findOne({
-				where: { id, user_id: req.user.id },
+				where: isStaff ? { id } : { id, user_id: req.user.id },
 				include: ['user', 'address', 'book_donation_items'],
 			});
 
 			if (!donation) throw new ApiError(404, 'Book donation not found');
 
-			if (donation.status !== PAYMENT_STATUS.PENDING) {
+			if (isStaff) {
+				if (donation.status !== PAYMENT_STATUS.FAILED) {
+					throw new ApiError(
+						400,
+						'Admin can only delete donations with failed status'
+					);
+				}
+			} else if (donation.status !== PAYMENT_STATUS.PENDING) {
 				throw new ApiError(
 					400,
 					'Cannot delete donation unless status is pending'
@@ -485,8 +486,22 @@ const BookDonationController = {
 				}
 			}
 
-			// Hanya donasi PENDING yang bisa dihapus — tidak dicatat ke log
-			// sistem (belum relevan untuk Admin/Superadmin).
+			if (isStaff) {
+				await LogService.createLog(
+					'Menghapus Donasi Buku Gagal',
+					req.user.id,
+					'book_donation',
+					donation.id,
+					`${req.user.name} menghapus donasi buku gagal #${donation.id}`,
+					{
+						donation_id: donation.id,
+						status: donation.status,
+						deleted_by: req.user.id,
+					},
+					req
+				);
+			}
+
 			await donation.destroy();
 
 			return res.json(

@@ -3,7 +3,7 @@ const router = express.Router();
 const BookDonationController = require('../controllers/book-donation.controller');
 
 const { ROLES } = require('../libs/constant');
-const { authorize } = require('../middleware/authorize');
+const { authorize, authorizeStrict } = require('../middleware/authorize');
 const { upload: local } = require('../middleware/local-upload');
 const { upload: vercel } = require('../middleware/vercel-blob');
 
@@ -15,23 +15,25 @@ router.get('/', guest, BookDonationController.index);
 router.get('/:id', guest, BookDonationController.show);
 router.get('/:id/track', guest, BookDonationController.track);
 
+const donaturStrict = authorizeStrict([ROLES.DONATUR]);
+router.post('/', donaturStrict, BookDonationController.store);
+
 const guestOnly = authorize([ROLES.DONATUR]);
-router.post('/', guestOnly, BookDonationController.store);
 router.post(
 	'/:id/pay',
 	guestOnly,
 	upload.single('payment_proof'),
 	BookDonationController.pay
 );
-// Hanya pemilik yang boleh mengedit, dan hanya selama status PENDING
-// (belum dibayar); dicek di controller.
 router.put('/:id', guestOnly, BookDonationController.update);
 
 const admin = authorize([ROLES.ADMIN]);
 router.post('/:id/verify', admin, BookDonationController.verify);
 
-// Hanya pemilik yang boleh menghapus donasinya, dan hanya selama status
-// PENDING; controller memastikan draft Biteship ikut dibatalkan.
-router.delete('/:id', guestOnly, BookDonationController.destroy);
+router.delete(
+	'/:id',
+	authorize([ROLES.DONATUR, ROLES.ADMIN]),
+	BookDonationController.destroy
+);
 
 module.exports = router;

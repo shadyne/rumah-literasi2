@@ -3,7 +3,7 @@ const router = express.Router();
 const FinancialDonationController = require('../controllers/financial-donation.controller');
 
 const { ROLES } = require('../libs/constant');
-const { authorize } = require('../middleware/authorize');
+const { authorize, authorizeStrict } = require('../middleware/authorize');
 const { upload: local } = require('../middleware/local-upload');
 const { upload: vercel } = require('../middleware/vercel-blob');
 
@@ -14,8 +14,10 @@ const guest = authorize([ROLES.DONATUR, ROLES.ADMIN]);
 router.get('/', guest, FinancialDonationController.index);
 router.get('/:id', guest, FinancialDonationController.show);
 
+const donaturStrict = authorizeStrict([ROLES.DONATUR]);
+router.post('/', donaturStrict, FinancialDonationController.store);
+
 const guestOnly = authorize([ROLES.DONATUR]);
-router.post('/', guestOnly, FinancialDonationController.store);
 router.post(
 	'/:id/pay',
 	guestOnly,
@@ -23,9 +25,11 @@ router.post(
 	FinancialDonationController.pay
 );
 router.put('/:id', guestOnly, FinancialDonationController.update);
-// Hanya pemilik yang boleh menghapus, dan hanya selama status PENDING
-// (menunggu pembayaran); dicek di controller.
-router.delete('/:id', guestOnly, FinancialDonationController.destroy);
+router.delete(
+	'/:id',
+	authorize([ROLES.DONATUR, ROLES.ADMIN]),
+	FinancialDonationController.destroy
+);
 
 const admin = authorize([ROLES.ADMIN]);
 router.post('/:id/verify', admin, FinancialDonationController.verify);

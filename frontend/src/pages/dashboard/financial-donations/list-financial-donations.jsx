@@ -61,8 +61,6 @@ const ListDonations = () => {
 
 	const { result, pagination, empty } = useResultState(error, loading, data);
 
-	// Donasi berstatus menunggu pembayaran tidak ditampilkan untuk
-	// Admin/Superadmin, jadi opsi filternya ikut disembunyikan.
 	const isStaff = user?.role === 'Admin' || user?.role === 'Superadmin';
 	const statusOptions = Object.values(PAYMENT_STATUS).filter(
 		(s) => !isStaff || s !== PAYMENT_STATUS.PENDING
@@ -177,14 +175,16 @@ const ListDonations = () => {
 											</button>
 										</Link>
 
-										{user?.id === donation.user_id &&
-											donation.status === PAYMENT_STATUS.PENDING && (
-												<button
-													onClick={() => handleDelete(donation.id)}
-													className='bg-transparent hover:text-red-500'>
-													Hapus
-												</button>
-											)}
+										{((user?.id === donation.user_id &&
+											donation.status === PAYMENT_STATUS.PENDING) ||
+											(isStaff &&
+												donation.status === PAYMENT_STATUS.FAILED)) && (
+											<button
+												onClick={() => handleDelete(donation.id)}
+												className='bg-transparent hover:text-red-500'>
+												Hapus
+											</button>
+										)}
 									</div>
 								</TableCell>
 							</TableRow>
