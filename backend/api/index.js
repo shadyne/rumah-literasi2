@@ -104,7 +104,6 @@ const errorHandler = require('../middleware/errors');
 const { authenticate } = require('../middleware/authenticate');
 
 const authRoutes = require('../routes/auth.routes');
-const paymentRoutes = require('../routes/payment.routes');
 const teritoriesRoutes = require('../routes/teritory.route');
 const publicRoutes = require('../routes/public.routes');
 const bookDonationRoutes = require('../routes/book-donation.routes');
@@ -125,7 +124,6 @@ app.get('/api/_healthcheck', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api/payment', paymentRoutes);
 app.use('/api/teritories', teritoriesRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/uploads', require('express').static('uploads'));
