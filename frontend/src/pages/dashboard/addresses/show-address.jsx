@@ -138,7 +138,9 @@ const ShowAddress = () => {
 						<Input
 							disabled
 							type='text'
-							defaultValue={result.data.district?.name || '—'}
+							defaultValue={
+								result.data.district_name || result.data.district?.name || '—'
+							}
 						/>
 					</div>
 
