@@ -178,6 +178,28 @@ export const PAYMENT_STATUS_LABELS = {
 	Failed: 'Gagal',
 };
 
+export const DELIVERY_STATUS_LABELS = {
+	confirmed: 'Menunggu Diproses Kurir',
+	scheduled: 'Pengiriman Dijadwalkan',
+	allocated: 'Kurir Telah Dialokasikan',
+	picking_up: 'Kurir Menuju Lokasi Pickup',
+	pickingUp: 'Kurir Menuju Lokasi Pickup',
+	picked: 'Paket Diterima Kurir',
+	in_transit: 'Paket Dalam Perjalanan',
+	inTransit: 'Paket Dalam Perjalanan',
+	dropping_off: 'Paket Menuju Tujuan',
+	droppingOff: 'Paket Menuju Tujuan',
+	delivered: 'Paket Telah Diterima',
+	on_hold: 'Pengiriman Ditahan',
+	onHold: 'Pengiriman Ditahan',
+	rejected: 'Pengiriman Ditolak',
+	courier_not_found: 'Kurir Tidak Ditemukan',
+	courierNotFound: 'Kurir Tidak Ditemukan',
+	returned: 'Paket Dikembalikan',
+	cancelled: 'Pengiriman Dibatalkan',
+	disposed: 'Paket Dimusnahkan',
+};
+
 export const DEFAULT_LOCATION = {
 	latitude: -6.1741855,
 	longitude: 106.8283465,

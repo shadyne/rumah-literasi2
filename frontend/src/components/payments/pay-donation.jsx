@@ -42,9 +42,17 @@ const PayDonation = ({ type }) => {
 	const donation = data?.data;
 	const amount =
 		type === 'book' ? donation?.shipping_fee : donation?.amount;
+	const hasValidAmount = Number.isFinite(Number(amount)) && Number(amount) > 0;
 
 	const onSubmit = async (e) => {
 		e.preventDefault();
+		if (!hasValidAmount) {
+			return toast.error(
+				type === 'book'
+					? 'Ongkir belum tersedia. Jangan lakukan pembayaran dan hubungi admin.'
+					: 'Nominal pembayaran tidak valid.'
+			);
+		}
 		if (!channelId) return toast.error('Pilih metode pembayaran terlebih dahulu');
 		if (!proof) return toast.error('Unggah bukti pembayaran terlebih dahulu');
 
@@ -93,8 +101,18 @@ const PayDonation = ({ type }) => {
 						<span className='text-sm text-zinc-500'>
 							{type === 'book' ? 'Total Ongkir' : 'Total Donasi'}
 						</span>
-						<p className='text-2xl font-bold'>{currency(amount || 0)}</p>
+						<p className='text-2xl font-bold'>
+							{hasValidAmount ? currency(Number(amount)) : 'Tidak tersedia'}
+						</p>
 					</div>
+
+					{!hasValidAmount && (
+						<div className='rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700'>
+							{type === 'book'
+								? 'Data ongkir tidak valid. Jangan transfer atau unggah bukti pembayaran. Silakan hubungi admin.'
+								: 'Nominal pembayaran tidak valid. Silakan hubungi admin.'}
+						</div>
+					)}
 
 					<div className='grid gap-2'>
 						<Label>Metode Pembayaran</Label>
@@ -127,7 +145,7 @@ const PayDonation = ({ type }) => {
 							<ArrowLeft className='size-4 sm:mr-2' />
 							<span className='hidden sm:inline'>Kembali</span>
 						</Button>
-						<Button type='submit' disabled={submitting}>
+						<Button type='submit' disabled={submitting || !hasValidAmount}>
 							{submitting ? 'Mengirim...' : 'Kirim Bukti Pembayaran'}
 						</Button>
 					</div>

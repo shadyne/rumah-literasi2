@@ -174,9 +174,70 @@ describe('BD-STORE POST /api/book-donations', () => {
 		expect(res.body.data.shipping_fee).toBe(15000);
 		expect(biteship.post).toHaveBeenCalledWith(
 			'draft_orders',
-			expect.any(Object)
+			expect.objectContaining({
+				origin_collection_method: 'pickup',
+			})
 		);
+		expect(biteship.post).toHaveBeenCalledWith('draft_orders/DRAFT-NEW', {
+			courier_company: 'jne',
+			courier_type: 'reg',
+		});
 		expect(await countLogs()).toBe(0);
+	});
+
+	it('BD-10b layanan tidak tersedia: 400 dan donasi tidak dibuat', async () => {
+		biteship.post.mockResolvedValueOnce({
+			data: { id: 'DRAFT-WITHOUT-PRICE', price: null },
+		});
+		biteship.get.mockResolvedValueOnce({ data: { pricing: [] } });
+
+		const res = await request(app)
+			.post('/api/book-donations')
+			.send(storePayload(addressA))
+			.use(as(actors.donaturA));
+
+		expect(res.status).toBe(400);
+		expect(await BookDonation.count()).toBe(0);
+		expect(biteship.del).toHaveBeenCalledWith(
+			'draft_orders/DRAFT-WITHOUT-PRICE'
+		);
+	});
+
+	it('BD-10c kurir dipasang dari Draft Rates API', async () => {
+		biteship.post
+			.mockResolvedValueOnce({
+				data: { id: 'DRAFT-READY', status: 'placed', price: null },
+			})
+			.mockResolvedValueOnce({
+				data: {
+					id: 'DRAFT-READY',
+					status: 'ready',
+					price: 17500,
+					courier: { company: 'jne', type: 'reg' },
+				},
+			});
+		biteship.get.mockResolvedValueOnce({
+				data: {
+					pricing: [
+						{
+							courier_code: 'jne',
+							courier_service_code: 'reg',
+							price: 17500,
+						},
+					],
+				},
+			});
+
+		const res = await request(app)
+			.post('/api/book-donations')
+			.send(storePayload(addressA))
+			.use(as(actors.donaturA));
+
+		expect(res.status).toBe(200);
+		expect(res.body.data.shipping_fee).toBe(17500);
+		expect(biteship.get).toHaveBeenCalledWith(
+			'draft_orders/DRAFT-READY/rates'
+		);
 	});
 
 	it('BD-11 Donatur: alamat bukan miliknya -> 404, tanpa draft Biteship', async () => {
@@ -442,6 +503,32 @@ describe('BD-VERIFY POST /api/book-donations/:id/verify', () => {
 		expect(res.status).toBe(502);
 		const fresh = await BookDonation.findByPk(d.id);
 		expect(fresh.status).toBe(PAYMENT_STATUS.WAITING_VERIFICATION);
+	});
+
+	it('BD-33b confirm tanpa harga mempertahankan ongkir draft', async () => {
+		const d = await seedBookDonation(
+			actors.donaturA,
+			addressA,
+			PAYMENT_STATUS.WAITING_VERIFICATION
+		);
+
+		biteship.post.mockResolvedValueOnce({
+			data: {
+				id: 'ORDER-CONFIRMED',
+				price: null,
+				courier: { tracking_id: 'TRACK-123' },
+			},
+		});
+
+		const res = await request(app)
+			.post(`/api/book-donations/${d.id}/verify`)
+			.send({ approve: true })
+			.use(as(actors.admin));
+
+		expect(res.status).toBe(200);
+		expect(res.body.data.shipping_fee).toBe(15000);
+		const fresh = await BookDonation.findByPk(d.id);
+		expect(fresh.shipping_fee).toBe(15000);
 	});
 
 	it('BD-34 Admin reject: 200 -> Failed, order Biteship dibatalkan, log tercatat', async () => {

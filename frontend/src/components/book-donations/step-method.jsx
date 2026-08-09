@@ -32,14 +32,14 @@ const METHOD_OPTIONS = [
 		label: 'Drop Off',
 		sublabel: 'Antar ke titik pengiriman terdekat',
 		description:
-			'Pilih titik drop off terdekat di sekitar Anda, antar paket langsung ke sana.',
+			'Setelah pembayaran disetujui dan resi terbit, antar paket berlabel ke HUB resmi kurir yang dipilih.',
 		icon: MapPin,
 		pros: [
 			'Lebih fleksibel waktu',
 			'Banyak titik lokasi',
 			'Proses lebih cepat',
 		],
-		note: 'Ketersediaan drop off bergantung pada kurir yang tersedia di area Anda. Akan ditampilkan di langkah berikutnya.',
+		note: 'Jika barcode resi tidak dapat dipindai di HUB, paket harus diserahkan melalui pickup kurir.',
 	},
 ];
 

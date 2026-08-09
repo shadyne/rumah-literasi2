@@ -35,11 +35,18 @@ const pickupScheduleSchema = z.object({
 	note: z.string().optional(),
 });
 
+// const dropoffScheduleSchema = z.object({
+// 	type: z.literal('drop_off'),
+// 	point_id: z.string().nonempty(),
+// 	point_name: z.string().nonempty(),
+// 	point_address: z.string().nonempty(),
+// });
+
 const dropoffScheduleSchema = z.object({
 	type: z.literal('drop_off'),
-	point_id: z.string().nonempty(),
-	point_name: z.string().nonempty(),
-	point_address: z.string().nonempty(),
+	point_id: z.string().optional(),
+	point_name: z.string().optional(),
+	point_address: z.string().optional(),
 });
 
 const scheduleSchema = z.discriminatedUnion('type', [

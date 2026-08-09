@@ -115,6 +115,7 @@ const userRoutes = require('../routes/user.routes');
 const merchantRoutes = require('../routes/merchant.routes');
 const paymentChannelRoutes = require('../routes/payment-channel.routes');
 const logRoutes = require('../routes/log.routes');
+const biteshipWebhookRoutes = require('../routes/biteship-webhook.routes');
 
 app.get('/api/_healthcheck', (req, res) => {
 	res.status(200).json({
@@ -126,6 +127,7 @@ app.get('/api/_healthcheck', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/teritories', teritoriesRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/webhooks/biteship', biteshipWebhookRoutes);
 app.use('/uploads', require('express').static('uploads'));
 app.use(authenticate);
 app.use('/api/book-donations', bookDonationRoutes);

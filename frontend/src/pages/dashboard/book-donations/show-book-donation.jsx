@@ -12,7 +12,12 @@ import {
 
 import { currency } from '@/libs/utils';
 import { useAuth } from '@/hooks/use-auth';
-import { ROLES, PAYMENT_STATUS, PAYMENT_STATUS_LABELS } from '@/libs/constant';
+import {
+	ROLES,
+	PAYMENT_STATUS,
+	PAYMENT_STATUS_LABELS,
+	DELIVERY_STATUS_LABELS,
+} from '@/libs/constant';
 import PaymentProofActions from '@/components/payments/payment-proof-actions';
 
 import {
@@ -91,23 +96,14 @@ const DeliveryMethodSection = ({ donation }) => {
 							)}
 						</>
 					) : (
-						<>
-							{donation.dropoff_point_name && (
-								<div className='flex items-start gap-2 text-zinc-600'>
-									<MapPin className='size-4 text-primary-400 flex-none mt-0.5' />
-									<div>
-										<p className='font-medium text-zinc-800'>
-											{donation.dropoff_point_name}
-										</p>
-										{donation.dropoff_point_address && (
-											<p className='text-zinc-500 text-xs mt-0.5'>
-												{donation.dropoff_point_address}
-											</p>
-										)}
-									</div>
-								</div>
-							)}
-						</>
+						<div className='flex items-start gap-2 text-zinc-600'>
+							<MapPin className='size-4 text-primary-400 flex-none mt-0.5' />
+							<p>
+								{donation.waybill_id
+									? 'Antar paket berlabel resi ke HUB resmi kurir. Jika barcode tidak dapat dipindai, gunakan pickup kurir.'
+									: 'Tunggu pembayaran disetujui dan resi tersedia sebelum membawa paket ke HUB kurir.'}
+							</p>
+						</div>
 					)}
 				</div>
 			</div>
@@ -346,6 +342,21 @@ const ShowBookDonation = () => {
 							<div>
 								<Label>ID Pelacakan</Label>
 								<Input disabled defaultValue={result.data.tracking_id || '—'} />
+							</div>
+							<div>
+								<Label>Nomor Resi</Label>
+								<Input disabled defaultValue={result.data.waybill_id || '—'} />
+							</div>
+							<div>
+								<Label>Status Pengiriman</Label>
+								<Input
+									disabled
+									defaultValue={
+										DELIVERY_STATUS_LABELS[result.data.delivery_status] ||
+										result.data.delivery_status ||
+										'—'
+									}
+								/>
 							</div>
 						</div>
 					</div>

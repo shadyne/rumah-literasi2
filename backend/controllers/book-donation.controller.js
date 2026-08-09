@@ -12,6 +12,23 @@ const { BookDonation, Address, PaymentChannel, sequelize } = require('../models'
 
 const searchService = new SearchService(sequelize);
 
+const normalizeCourierService = (value, company) => {
+	const service = String(value || '')
+		.trim()
+		.toLowerCase()
+		.replace(/-/g, '_');
+	const prefix = `${String(company || '').toLowerCase()}_`;
+	const normalized = service.startsWith(prefix)
+		? service.slice(prefix.length)
+		: service;
+
+	if (['reg', 'regular', 'reguler', 'standard'].includes(normalized)) {
+		return 'reg';
+	}
+
+	return normalized;
+};
+
 const BookDonationController = {
 	async index(req, res, next) {
 		try {
@@ -125,8 +142,73 @@ const BookDonationController = {
 			const { data: draft } = await DeliveryController.draft(donation);
 			biteshipDraftId = draft.id;
 
+			const { data: rates } = await DeliveryController.draftRates(draft.id);
+			const matchedRate = (rates.pricing || []).find(
+				(rate) => {
+					const company = rate.courier_code || rate.company;
+					const service = rate.courier_service_code || rate.type;
+
+					return (
+						company === courier.courier_code &&
+						normalizeCourierService(service, company) ===
+							normalizeCourierService(
+								courier.courier_service_code,
+								courier.courier_code
+							)
+					);
+				}
+			);
+
+			if (!matchedRate) {
+				throw new ApiError(
+					400,
+					'Layanan kurir yang dipilih tidak tersedia untuk draft pengiriman. Silakan pilih layanan kurir kembali.'
+				);
+			}
+
+			const selectedCourier = {
+				courier_code: matchedRate.courier_code || matchedRate.company,
+				courier_service_code:
+					matchedRate.courier_service_code || matchedRate.type,
+			};
+
+			const { data: updatedDraft } = await DeliveryController.updateDraft(
+				draft.id,
+				selectedCourier
+			);
+			let resolvedDraft = updatedDraft;
+
+			if (
+				!resolvedDraft?.courier?.company ||
+				!resolvedDraft?.courier?.type ||
+				resolvedDraft?.price === null ||
+				resolvedDraft?.price === undefined
+			) {
+				const { data: retrievedDraft } =
+					await DeliveryController.retrieveDraft(draft.id);
+				resolvedDraft = retrievedDraft;
+			}
+
+			const draftFee = Number(resolvedDraft?.price);
+			const courierMatched =
+				resolvedDraft?.courier?.company === selectedCourier.courier_code &&
+				resolvedDraft?.courier?.type ===
+					selectedCourier.courier_service_code;
+
+			if (!courierMatched || !Number.isFinite(draftFee) || draftFee <= 0) {
+				throw new ApiError(
+					502,
+					'Biteship tidak berhasil menetapkan layanan kurir dan ongkir pada draft.'
+				);
+			}
+
 			await donation.update(
-				{ order_id: draft.id, shipping_fee: draft.price },
+				{
+					order_id: draft.id,
+					shipping_fee: draftFee,
+					courier_code: selectedCourier.courier_code,
+					courier_service_code: selectedCourier.courier_service_code,
+				},
 				{ transaction: t }
 			);
 
@@ -289,7 +371,11 @@ const BookDonationController = {
 				// Rekonsiliasi ongkir: bandingkan harga yang benar-benar di-charge
 				// Biteship dengan yang tersimpan (dibayar donatur).
 				const confirmedFee = Number(order.price);
-				const hasConfirmedFee = Number.isFinite(confirmedFee);
+				const hasConfirmedFee =
+					order.price !== null &&
+					order.price !== undefined &&
+					Number.isFinite(confirmedFee) &&
+					confirmedFee > 0;
 				const feeMismatch =
 					hasConfirmedFee && confirmedFee !== Number(donation.shipping_fee);
 
@@ -298,6 +384,10 @@ const BookDonationController = {
 						order_id: order.id,
 						tracking_id:
 							order.courier?.tracking_id || donation.tracking_id || null,
+						waybill_id:
+							order.courier?.waybill_id || donation.waybill_id || null,
+						delivery_status: order.status || 'confirmed',
+						delivery_status_updated_at: new Date(),
 						shipping_fee: hasConfirmedFee
 							? confirmedFee
 							: donation.shipping_fee,
