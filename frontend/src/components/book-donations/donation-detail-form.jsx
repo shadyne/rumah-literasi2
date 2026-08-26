@@ -72,7 +72,7 @@ const DonationDetailForm = ({ initial, action, previous, label }) => {
 					)}
 				/>
 				<Hint>
-					Alamat tujuan pengiriman donasi buku. Jika belum memiliki alamat, Anda
+					Alamat penjemputan donasi buku. Jika belum memiliki alamat, Anda
 					dapat menambahkannya di{' '}
 					<Link className='text-primary-500' to='/dashboard/addresses'>
 						halaman alamat
