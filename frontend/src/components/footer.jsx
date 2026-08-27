@@ -13,11 +13,11 @@ const Footer = () => {
 
 			<div className='grid gap-8 lg:grid-cols-5'>
 				<p className='lg:col-span-2'>
-					Peluang kebaikan untuk kamu yang ada di Yogyakarta dan sekitarnya.
-					Sanggar Taman Mraen Mimpi menerima donasi berupa barang yang sudah
-					tidak terpakai, seperti: kertas, kardus, koran, kaleng, botol, dll.
+					Peluang kebaikan untuk kamu yang ada di Yogyakarta, Kota Bekasi, Jombang, dan sekitarnya.
+					Sanggar Taman Mraen Mimpi menerima donasi Sampah Daur Ulang
+					(kertas, kardus, koran, kaleng, botol plastik, botol kaca, minyak jelantah, dll) dan Barang Bekas (tas, sepatu, mainan, dll.).
 					Tim kami siap mengambil donasi tersebut ke lokasi untuk dijual kembali
-					dan hasilnya akan digunakan sebagai operasional utama kegiatan Mraen
+					dan hasilnya akan digunakan sebagai operasional utama kegiatan Sanggar Taman Mraen
 					Mimpi.
 				</p>
 

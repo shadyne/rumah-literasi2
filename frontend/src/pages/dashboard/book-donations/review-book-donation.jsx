@@ -270,7 +270,7 @@ import * as React from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Truck, MapPin, CalendarDays, Clock } from 'lucide-react';
+import { ArrowLeft, Truck, MapPin } from 'lucide-react';
 
 import axios from '@/libs/axios';
 import { currency } from '@/libs/utils';
@@ -405,14 +405,8 @@ const ReviewBookDonation = () => {
 						{method === DELIVERY_METHODS.PICKUP && schedule && (
 							<>
 								<div className='flex items-center gap-2 text-zinc-600'>
-									<CalendarDays className='size-4 text-primary-400 flex-none' />
-									<span className='font-medium text-zinc-800'>Tanggal:</span>
-									{schedule.date}
-								</div>
-								<div className='flex items-center gap-2 text-zinc-600'>
-									<Clock className='size-4 text-primary-400 flex-none' />
-									<span className='font-medium text-zinc-800'>Waktu:</span>
-									{schedule.time_slot}
+									<Truck className='size-4 text-primary-400 flex-none' />
+									<span>Kurir akan menjemput donasi Anda secepatnya.</span>
 								</div>
 								{schedule.note && (
 									<div className='flex items-start gap-2 text-zinc-600'>

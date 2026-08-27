@@ -30,8 +30,6 @@ const courierSchema = z.object({
 
 const pickupScheduleSchema = z.object({
 	type: z.literal('pickup'),
-	date: z.string().nonempty(),
-	time_slot: z.string().nonempty(),
 	note: z.string().optional(),
 });
 

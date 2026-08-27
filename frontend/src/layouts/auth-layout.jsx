@@ -15,15 +15,15 @@ const AuthLayout = () => {
 
 	return (
 		<main className='relative grid w-full h-screen lg:grid-cols-2'>
-			<Link to='/' className='absolute top-0 left-0 m-6'>
+			<Link to='/' className='absolute top-0 left-0 m-6 z-10'>
 				<Logo />
 			</Link>
 
-			<div className='hidden w-full h-screen lg:block'>
+			<div className='hidden w-full h-screen p-8 pt-24 lg:block'>
 				<img
-					src='/backdrop.jpg'
-					alt='logo'
-					className='hidden object-cover size-full lg:block'
+					src='/signin-hero.jpg'
+					alt='Sanggar Taman Mraen Mimpi'
+					className='w-full h-full object-cover rounded-xl'
 				/>
 			</div>
 

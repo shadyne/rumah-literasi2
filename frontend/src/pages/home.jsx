@@ -38,13 +38,13 @@ const Home = () => {
 					<FadeIn direction='left' duration={700}  className='order-last lg:order-first'>
 						<div className='flex flex-col gap-6'>
 							<h1 className='text-3xl sm:text-4xl lg:text-6xl font-bold'>
-								Memberdayakan Komunitas Melalui Literasi
+								Sudah Saatnya Kalian Berpartisipasi Dalam Kebaikan Ini
 							</h1>
 							<p className='text-zinc-600'>
-								Mraen Mimpi adalah inisiatif nirlaba yang berfokus pada
-								redistribusi buku bekas ke komunitas yang membutuhkan.
-								Bergabunglah bersama kami untuk mendorong pendidikan, mengurangi
-								limbah, dan menciptakan dampak sosial melalui literasi.
+								Sejak 2017 hingga kini Sanggar Taman Mraen Mimpi bergerak dengan mengumpulkan
+								donasi Sampah Daur Ulang dan Barang Bekas untuk menjalankan Sanggar Taman
+								Mraen Mimpi yang sudah ada di 3 lokasi yakni di Sleman, Daerah Istimewa
+								Yogyakarta, Kota Bekasi, Jawa Barat dan Jombang Jawa Timur. Kami membuka kesempatan teman-teman untuk ikut serta dalam Donasi Buku dan Donasi Finansial melalui website ini. Kami tunggu!
 							</p>
 							<div className='flex items-center gap-2'>
 								<Button
@@ -57,6 +57,7 @@ const Home = () => {
 									<Button variant='outline'>Tentang Kami</Button>
 								</Link>
 							</div>
+
 						</div>
 					</FadeIn>
 
@@ -165,8 +166,8 @@ const Home = () => {
 								<h2 className='text-4xl font-bold'>Alur Donasi Buku</h2>
 								<p>
 									Donasi buku adalah kegiatan sosial untuk mengumpulkan dan
-									mendistribusikan buku kepada yang membutuhkan, seperti sekolah
-									terpencil. Proses donasi meliputi pengumpulan, penyortiran,
+									mendistribusikan buku kepada yang membutuhkan. Proses donasi
+									meliputi pengumpulan, penyortiran,
 									dan pendistribusian buku ke perpustakaan dan komunitas baca
 									yang membutuhkan. Selain buku, donasi dalam bentuk uang juga
 									diterima untuk membantu fasilitas literasi di tempat yang

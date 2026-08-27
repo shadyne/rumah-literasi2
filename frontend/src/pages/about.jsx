@@ -15,7 +15,7 @@ const About = () => {
 						/>
 
 						<div className='absolute top-0 xl:top-auto xl:-left-20 xl:bottom-16 hidden xl:block'>
-							<div className='relative p-6 text-sm origin-center bg-white border w-72 animate-slow-hover border-zinc-200 rounded-xl'>
+							<a href='https://bit.ly/DaftarSTMMHero' target='_blank' rel='noreferrer' className='block text-inherit no-underline cursor-pointer relative p-6 text-sm origin-center bg-white border w-72 animate-slow-hover border-zinc-200 rounded-xl transition hover:shadow-lg'>
 								<div className='absolute top-0 left-0 -m-1'>
 									<div className='relative'>
 										<div className='absolute inset-0 rounded-full size-3 bg-primary-500'></div>
@@ -32,7 +32,7 @@ const About = () => {
 									menciptakan lingkungan yang hidup dan mendukung bagi pecinta
 									buku dari semua usia.
 								</p>
-							</div>
+							</a>
 						</div>
 					</div>
 				</FadeIn>

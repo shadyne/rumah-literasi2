@@ -221,14 +221,6 @@ const ApiError = require('../libs/error');
 const ApiResponse = require('../libs/response');
 const { Merchant, Address } = require('../models');
 
-// Pengiriman terjadwal (delivery_type: 'scheduled') di Biteship hanya didukung
-// oleh kurir instan/same-day. Kurir ekspedisi reguler hanya mendukung 'now',
-// dan akan menolak saat confirm jika dipaksa 'scheduled' (error 40002007).
-const SCHEDULED_SERVICE_TYPES = ['instant', 'same_day'];
-
-const supportsScheduledDelivery = (serviceType) =>
-	SCHEDULED_SERVICE_TYPES.includes(String(serviceType || '').toLowerCase());
-
 const normalizeCollectionMethods = (methods) => {
 	if (!Array.isArray(methods)) return [];
 
@@ -293,8 +285,6 @@ const applyRateLocation = (body, prefix, location, preferCoordinates = false) =>
 };
 
 const DeliveryController = {
-	supportsScheduledDelivery,
-
 	async draft(donation) {
 		const merchant = await Merchant.findOne();
 
@@ -303,13 +293,6 @@ const DeliveryController = {
 		}
 
 		const isPickup = donation.method === 'pickup';
-
-		const deliveryType =
-			isPickup &&
-			donation.pickup_schedule &&
-			supportsScheduledDelivery(donation.service_type)
-				? 'scheduled'
-				: 'now';
 
 		const body = {
 			origin_contact_name: donation.address.contact_name,
@@ -328,7 +311,7 @@ const DeliveryController = {
 			destination_postal_code: Number(merchant.zipcode),
 			destination_note: 'Book donation delivery',
 
-			delivery_type: deliveryType,
+			delivery_type: 'now',
 
 			order_note: 'Book donation order',
 			reference_id: `DONATION-${Date.now()}`,
@@ -348,20 +331,8 @@ const DeliveryController = {
 			],
 		};
 
-		if (
-			isPickup &&
-			deliveryType === 'scheduled' &&
-			donation.pickup_schedule
-		) {
-			const [startTime] =
-				donation.pickup_schedule.time_slot.split('-');
-
-			body.delivery_date = donation.pickup_schedule.date;
-			body.delivery_time = startTime.trim();
-
-			if (donation.pickup_schedule.note) {
-				body.origin_note = donation.pickup_schedule.note;
-			}
+		if (isPickup && donation.pickup_schedule?.note) {
+			body.origin_note = donation.pickup_schedule.note;
 		}
 
 		try {

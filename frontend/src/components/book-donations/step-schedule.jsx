@@ -319,114 +319,35 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-	MapPin,
-	Clock,
-	CalendarDays,
-	AlertCircle,
-	PackageCheck,
-} from 'lucide-react';
+import { MapPin, Truck, AlertCircle, PackageCheck } from 'lucide-react';
 
 import { useDonation, STEPS, DELIVERY_METHODS } from '@/stores/use-donation';
 import { pickupScheduleSchema } from '@/libs/schemas';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/libs/utils';
 
-// Penjadwalan waktu pickup hanya didukung kurir instan/same-day di Biteship.
-const SCHEDULED_SERVICE_TYPES = ['instant', 'same_day'];
-const supportsScheduledDelivery = (serviceType) =>
-	SCHEDULED_SERVICE_TYPES.includes(String(serviceType || '').toLowerCase());
-
-const TIME_SLOTS = [
-	{ value: '08:00-10:00', label: '08.00 – 10.00' },
-	{ value: '10:00-12:00', label: '10.00 – 12.00' },
-	{ value: '12:00-14:00', label: '12.00 – 14.00' },
-	{ value: '14:00-16:00', label: '14.00 – 16.00' },
-	{ value: '16:00-18:00', label: '16.00 – 18.00' },
-];
-
-const minDate = () => {
-	const d = new Date();
-	d.setDate(d.getDate() + 1);
-	return d.toISOString().split('T')[0];
-};
-
-const PickupForm = ({ onSubmit, onBack, defaultValues, schedulable }) => {
-	const {
-		register,
-		handleSubmit,
-		watch,
-		setValue,
-		formState: { errors },
-	} = useForm({
+const PickupForm = ({ onSubmit, onBack, defaultValues }) => {
+	const { register, handleSubmit } = useForm({
 		resolver: zodResolver(pickupScheduleSchema),
 		defaultValues: defaultValues || {
 			type: 'pickup',
-			date: '',
-			time_slot: '',
 			note: '',
 		},
 	});
-
-	const selectedSlot = watch('time_slot');
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className='grid gap-6'>
 			<input type='hidden' {...register('type')} value='pickup' />
 
-			{!schedulable && (
-				<div className='flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800'>
-					<AlertCircle className='size-4 flex-none mt-0.5' />
-					<p>
-						Kurir yang Anda pilih tidak mendukung penjadwalan waktu pickup.
-						Tanggal & jam di bawah hanya menjadi preferensi — kurir akan
-						memproses penjemputan sesegera mungkin tanpa jaminan slot waktu.
-						Untuk pickup terjadwal, pilih kurir instan/same-day.
-					</p>
-				</div>
-			)}
-
-			<div>
-				<Label>Tanggal Pickup</Label>
-				<Input type='date' min={minDate()} {...register('date')} />
-				{errors.date && (
-					<span className='text-sm text-red-500 mt-1 block'>
-						{errors.date.message}
-					</span>
-				)}
-			</div>
-
-			<div>
-				<Label>Waktu Pickup</Label>
-				<div className='grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1'>
-					{TIME_SLOTS.map((slot) => (
-						<button
-							key={slot.value}
-							type='button'
-							onClick={() =>
-								setValue('time_slot', slot.value, { shouldValidate: true })
-							}
-							className={cn(
-								'flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all',
-								selectedSlot === slot.value
-									? 'border-primary-500 bg-primary-50 text-primary-700'
-									: 'border-zinc-200 hover:border-primary-300 text-zinc-600'
-							)}>
-							<Clock className='size-3.5' />
-							{slot.label}
-						</button>
-					))}
-				</div>
-				<input type='hidden' {...register('time_slot')} />
-				{errors.time_slot && (
-					<span className='text-sm text-red-500 mt-1 block'>
-						{errors.time_slot.message}
-					</span>
-				)}
+			<div className='flex items-start gap-3 p-4 bg-primary-50 border border-primary-200 rounded-xl text-sm text-primary-800'>
+				<Truck className='size-4 flex-none mt-0.5' />
+				<p>
+					Kurir akan menjemput donasi Anda secepatnya setelah pembayaran
+					dikonfirmasi. Kurir akan menghubungi Anda sebelum proses pickup
+					dilakukan.
+				</p>
 			</div>
 
 			<div>
@@ -437,16 +358,11 @@ const PickupForm = ({ onSubmit, onBack, defaultValues, schedulable }) => {
 				/>
 			</div>
 
-			<div className='flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800'>
-				<AlertCircle className='size-4 flex-none' />
-				<p>Kurir akan menghubungi Anda sebelum proses pickup dilakukan.</p>
-			</div>
-
 			<div className='flex items-center gap-3'>
 				<Button type='button' variant='outline' onClick={onBack}>
 					Kembali
 				</Button>
-				<Button type='submit'>Konfirmasi Jadwal</Button>
+				<Button type='submit'>Konfirmasi Pickup</Button>
 			</div>
 		</form>
 	);
@@ -517,9 +433,9 @@ const StepSchedule = () => {
 			<div className='flex items-center gap-2 text-sm text-zinc-500 bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3'>
 				{method === DELIVERY_METHODS.PICKUP ? (
 					<>
-						<CalendarDays className='size-4 text-primary-500 flex-none' />
+						<Truck className='size-4 text-primary-500 flex-none' />
 						<span>
-							Jadwalkan <strong className='text-zinc-700'>waktu pickup</strong>{' '}
+							Konfirmasi <strong className='text-zinc-700'>pickup</strong>{' '}
 							buku donasi Anda
 						</span>
 					</>
@@ -539,7 +455,6 @@ const StepSchedule = () => {
 				<PickupForm
 					onSubmit={handleSubmit}
 					onBack={handleBack}
-					schedulable={supportsScheduledDelivery(courier?.service_type)}
 					defaultValues={
 						savedSchedule?.type === 'pickup' ? savedSchedule : null
 					}
