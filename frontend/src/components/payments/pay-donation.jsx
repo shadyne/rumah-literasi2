@@ -5,7 +5,9 @@ import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 
 import axios from '@/libs/axios';
-import { currency, animate } from '@/libs/utils';
+import { currency, animate, whatsappUrl } from '@/libs/utils';
+import { WHATSAPP_ADMIN_NUMBER } from '@/libs/constant';
+import { useAuth } from '@/hooks/use-auth';
 
 import {
 	Heading,
@@ -20,6 +22,7 @@ import { Error } from '@/components/error';
 import PaymentChannelPicker from '@/components/payments/payment-channel-picker';
 
 const PayDonation = ({ type }) => {
+	const { user } = useAuth();
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const { mutate } = useSWRConfig();
@@ -43,6 +46,31 @@ const PayDonation = ({ type }) => {
 	const amount =
 		type === 'book' ? donation?.shipping_fee : donation?.amount;
 	const hasValidAmount = Number.isFinite(Number(amount)) && Number(amount) > 0;
+
+	const createWhatsappConfirmation = () => {
+		const donorName = donation?.user?.name || user?.name || 'Donatur';
+		const donationType = type === 'book' ? 'Donasi Buku' : 'Donasi Finansial';
+		const lines = [
+			'Halo Admin Mraen Mimpi, saya ingin mengonfirmasi donasi berikut:',
+			'',
+			`Nama donatur: ${donorName}`,
+			`Jenis donasi: ${donationType}`,
+			`ID donasi: ${donation?.id || id}`,
+		];
+
+		if (type === 'financial') {
+			lines.push(`Nominal transaksi: ${currency(Number(amount))}`);
+		} else if (donation?.book_donation_items?.length) {
+			const totalBooks = donation.book_donation_items.reduce(
+				(total, item) => total + Number(item.amount || 0),
+				0
+			);
+			lines.push(`Jumlah buku: ${totalBooks} buku`);
+		}
+
+		lines.push('', 'Bukti pembayaran sudah saya unggah. Mohon dicek, terima kasih.');
+		return whatsappUrl(WHATSAPP_ADMIN_NUMBER, lines.join('\n'));
+	};
 
 	const onSubmit = async (e) => {
 		e.preventDefault();
@@ -72,7 +100,7 @@ const PayDonation = ({ type }) => {
 					'Status menjadi "Menunggu Verifikasi". Admin akan memverifikasi dalam 1×24 jam.',
 			});
 			animate();
-			navigate(listPath);
+			window.location.assign(createWhatsappConfirmation());
 		} catch (err) {
 			toast.error('Gagal mengirim bukti pembayaran', {
 				description: err.response?.data?.message || err.message,
@@ -146,7 +174,9 @@ const PayDonation = ({ type }) => {
 							<span className='hidden sm:inline'>Kembali</span>
 						</Button>
 						<Button type='submit' disabled={submitting || !hasValidAmount}>
-							{submitting ? 'Mengirim...' : 'Kirim Bukti Pembayaran'}
+							{submitting
+								? 'Mengirim...'
+								: 'Kirim Bukti & Konfirmasi via WhatsApp'}
 						</Button>
 					</div>
 				</form>

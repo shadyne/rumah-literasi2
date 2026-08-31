@@ -178,6 +178,8 @@ export const PAYMENT_STATUS_LABELS = {
 	Failed: 'Gagal',
 };
 
+export const WHATSAPP_ADMIN_NUMBER = '6281229846684';
+
 export const DELIVERY_STATUS_LABELS = {
 	confirmed: 'Menunggu Diproses Kurir',
 	scheduled: 'Pengiriman Dijadwalkan',

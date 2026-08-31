@@ -15,6 +15,11 @@ export const currency = (value) => {
 	}).format(value);
 };
 
+export const whatsappUrl = (phone, message) => {
+	const normalizedPhone = String(phone || '').replace(/\D/g, '');
+	return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
+};
+
 export const animate = () => {
 	const duration = 5 * 1000;
 	const end = Date.now() + duration;

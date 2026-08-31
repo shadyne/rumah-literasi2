@@ -52,6 +52,17 @@ const About = () => {
 							sesuatu yang mampu kami lakukan, yakni berupa Perpustakaan
 							Jalan-jalan.
 						</p>
+						<p className='text-zinc-600'>
+							Bergabung bersama kami menjadi sukarelawan lewat{' '}
+							<a
+								href='https://bit.ly/DaftarSTMMHero'
+								target='_blank'
+								rel='noreferrer'
+								className='font-semibold text-primary-600 underline underline-offset-4 hover:text-primary-700'>
+								link ini
+							</a>
+							.
+						</p>
 					</div>
 				</FadeIn>
 			</div>
